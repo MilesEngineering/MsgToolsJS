@@ -12,12 +12,15 @@ class MsgTabs extends HTMLElement {
         super();
 
         this.tabNames = this.getAttribute('tabNames').split(',');
-        //TODO This is a mess!  we want to specify border here, unless it was specified inline or
-        //TODO in css.  It's hard to tell if it was specified in css, though, because it can just
-        //TODO be a default
         var computed_style = getComputedStyle(this);
         var baseStyle = `padding: var(--tab-padding, 0);
-                         border: var(--tab-border, 1px solid black);`
+                         display: var(--tab-display, flex);
+                         margin: var(--tab-margin, 0px);
+                         font-family: var(--main-font, sans-serif);
+                        `
+        var wrapperStyle = `padding: var(--wrapper-padding, 30px 45px);
+                            border: var(--wrapper-border, 1px solid #222831);
+                           `
         if(this.hasAttribute("style")) {
             var inline_style = this.getAttribute("style");
             if(inline_style.replace(' ','').includes('border:')) {
@@ -34,10 +37,11 @@ class MsgTabs extends HTMLElement {
             // This is weird but if the MsgTabs has a style, the browsers adds stubby vertical lines
             // above and below it, and they look weird.  Clearing the style here but putting it on
             // the children makes it look ok.
-            this.setAttribute('style', '');
+            // this.setAttribute('style', '');
         }
         this.tabButtons = [];
         var buttonContainer = document.createElement('div');
+        buttonContainer.setAttribute('class', 'button-container');
         buttonContainer.setAttribute('style', baseStyle);
         this.insertBefore(buttonContainer, this.firstChild);
         for(var tab=0; tab<this.tabNames.length; tab++) {
@@ -48,17 +52,28 @@ class MsgTabs extends HTMLElement {
             buttonContainer.appendChild(tabBtn);
             this.tabButtons.push(tabBtn);
             var childNumber = tab+1;
-            var div = this.children[childNumber];
-            div.baseStyle = baseStyle + div.getAttribute('style');
+            var wrapper = this.children[childNumber];
+            wrapper.baseStyle = wrapperStyle + wrapper.getAttribute('style');
+            wrapper.setAttribute('class', 'wrapper');
         }
         this.tabButtonStyle =
-            `background-color: var(--tab-background-color, inherit);
-             border: var(--tab-button-border, none);
+            `background-color: var(--color-dark-contrast-2, #eeeeee);
+             border: var(--tab-button-border, 1px solid #222831);
+             border-top: var(--tab-button-border-top, 1px solid #222831);
+             border-bottom: var(--tab-button-border-bottom, 1px solid black);
+             margin: var(--tab-button-margin, 0 4px -1px 0);
              outline: var(--tab-button-outline, none);
              cursor: pointer;
              padding: var(--tab-button-padding, 14px 16px);
-             transition: var(--tab-button-transition, 0.3s);
-             color: var(--tab-color, black);
+             transition: var(--tab-button-transition, all 0.3s);
+             color: var(--tab-color, #222831);
+             font-size: var(--base-font-size, 18px);
+             font-weight: var(--main-font-weight, regular);
+             border-radius: var(--border-radius, 4px 4px 0 0);
+             font-family: var(--main-font, sans-serif);
+             box-sizing: border-box;
+             text-transform: var(--header-text-transform, uppercase);
+             letter-spacing: var(--header-text-letter-spacing, .035em);
              `
         this.tabClicked(0);
     }
@@ -72,7 +87,11 @@ class MsgTabs extends HTMLElement {
         var tabButtonStyle = this.tabButtonStyle;
         if(s) {
             showString = "block";
-            tabButtonStyle += "background-color: var(--tab-background-hover, #ccc)";
+            tabButtonStyle += `background-color: var(--tab-background-hover, white);
+                               border-top: var(--tab-button-border-hover, 4px solid #d65a31);
+                               padding: var(--tab-button-padding-hover, 11px 16px 15px);
+                               border-bottom: 0;
+                              `;
         } else {
         }
         var style = "; display: " + showString;
