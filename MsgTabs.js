@@ -20,6 +20,10 @@ class MsgTabs extends HTMLElement {
                         `
         var wrapperStyle = `padding: var(--wrapper-padding, 30px 45px);
                             border: var(--wrapper-border, 1px solid #222831);
+                            font-family: var(--main-font, sans-serif);
+                            font-size: var(--base-font-size, 18px);
+                            background-color: var(--tab-background-hover, --color-dark-contrast, white);
+                            border-radius: var(--wrapper-radius, 0 4px 4px 4px);
                            `
         if(this.hasAttribute("style")) {
             var inline_style = this.getAttribute("style");
