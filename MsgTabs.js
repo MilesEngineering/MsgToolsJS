@@ -16,7 +16,8 @@ class MsgTabs extends HTMLElement {
         //TODO in css.  It's hard to tell if it was specified in css, though, because it can just
         //TODO be a default
         var computed_style = getComputedStyle(this);
-        var baseStyle = 'border: 1px solid #ccc;';
+        var baseStyle = `padding: var(--tab-padding, 0);
+                         border: var(--tab-border, 1px solid black);`
         if(this.hasAttribute("style")) {
             var inline_style = this.getAttribute("style");
             if(inline_style.replace(' ','').includes('border:')) {
@@ -51,12 +52,14 @@ class MsgTabs extends HTMLElement {
             div.baseStyle = baseStyle + div.getAttribute('style');
         }
         this.tabButtonStyle =
-            `background-color: inherit;
-             border: none;
-             outline: none;
+            `background-color: var(--tab-background-color, inherit);
+             border: var(--tab-button-border, none);
+             outline: var(--tab-button-outline, none);
              cursor: pointer;
-             padding: 14px 16px;
-             transition: 0.3s;`
+             padding: var(--tab-button-padding, 14px 16px);
+             transition: var(--tab-button-transition, 0.3s);
+             color: var(--tab-color, black);
+             `
         this.tabClicked(0);
     }
     tabClicked(tab) {
@@ -69,7 +72,7 @@ class MsgTabs extends HTMLElement {
         var tabButtonStyle = this.tabButtonStyle;
         if(s) {
             showString = "block";
-            tabButtonStyle += "background-color: #ccc;";
+            tabButtonStyle += "background-color: var(--tab-background-hover, #ccc)";
         } else {
         }
         var style = "; display: " + showString;
