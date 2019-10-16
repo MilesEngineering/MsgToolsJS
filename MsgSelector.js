@@ -11,6 +11,7 @@ function createChildElement(parent, childName) {
 class MsgSelector extends HTMLElement {
     constructor() {
         super();
+
         this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         this.shadow = this.attachShadow({mode: 'open'});
         this.handler = this.getAttribute('handler');
@@ -18,14 +19,25 @@ class MsgSelector extends HTMLElement {
         this.dropdowns = [];
         msgtools.DelayedInit.add(this);
     }
+
     init() {
         this.createDropDownList(0, msgtools.msgs);
     }
+
     createDropDownList(depth, msgtree) {
         console.log(this.dropdowns);
         //console.log('creating dropdown list');
         //console.log(msgtree);
-        var dropdown = createChildElement(this.shadow, 'select');
+        let dropdownStyle = `font-size: var(--base-font-size, 18px);
+                             margin: var(--input-margin, 0 15px 30px 0);
+                             min-width: var(--input-width, 100px);
+                             background: var(--color-text, white);
+                             border-color: var(--color-text, white);
+                             height: var(--input-height, 35px);
+                            `;
+
+        let dropdown = createChildElement(this.shadow, 'select');
+        dropdown.setAttribute('style', dropdownStyle);
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
         let newDropdownCount = 0;
