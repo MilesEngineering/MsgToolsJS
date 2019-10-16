@@ -30,7 +30,7 @@ class MsgElement extends HTMLElement {
             console.log(error_string);
             return;
         }
-        
+
         var fieldNames;
         if(this.hasAttribute('fields')) {
             fieldNames = this.getAttribute('fields').split(",");
@@ -59,6 +59,7 @@ class MsgElement extends HTMLElement {
 
         // a table that holds everything else
         this.table = createChildElement(this.shadow, 'table');
+
         if(this.hasAttribute('border')) {
             this.table.setAttribute('border', this.getAttribute('border'));
         } else {
@@ -70,7 +71,7 @@ class MsgElement extends HTMLElement {
 }
 
 /*
- * Displays field values for a message. 
+ * Displays field values for a message.
  */
 class MsgLabels extends MsgElement {
     constructor() {
@@ -133,9 +134,11 @@ class MsgLabels extends MsgElement {
  */
 class MsgLabelsRow extends MsgLabels {
     createFields() {
+
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
             var td = createChildElement(tr, 'td');
+            tr.setAttribute('style', trStyle);
             td.setAttribute('colspan', this.fieldInfos.length);
             td.textContent = this.msgName;
         }
@@ -171,20 +174,33 @@ class MsgLabelsColumn extends MsgLabels {
         for(var i=0; i<this.fieldInfos.length; i++) {
             var tr = createChildElement(this.table, 'tr');
             if(this.showHeader) {
-                var td = createChildElement(tr, 'td');
+                let td = createChildElement(tr, 'td');
+                let tdHeadStyle = `color: var(--color-text, white);
+                                   text-align: right;
+                                   padding-right: 15px;
+                                   width: 10%;
+                                  `;
+                td.setAttribute('style', tdHeadStyle);
                 td.textContent = this.fieldNames[i];
             }
             var td = createChildElement(tr, 'td');
+            var tdStyle = `background-color: var(--color-text, white);
+                           color: var(--color-dark, black);
+                           border-radius: var(--input-radius, 2px);
+                           width: 50%;
+                           min-width: 300px;
+                           padding: var(--input-padding, 10px 15px);
+                           height: 30px;
+                          `
             td.textContent = '';
-            td.baseStyle = 'border: 1px gray solid; width: 100%;';
-            td.setAttribute('style', td.baseStyle);
+            td.setAttribute('style', tdStyle);
             this.fields.push(td);
         }
     }
 }
 
 /*
- * Edit field values for a message. 
+ * Edit field values for a message.
  */
 class MsgEdit extends MsgElement {
     constructor() {
@@ -224,10 +240,22 @@ class MsgEdit extends MsgElement {
     }
     sendButton() {
         var sendBtn = document.createElement('input');
+        var btnStyle = `background-color: var(--color-alert, white);
+                        border-color: var(--color-alert, black);
+                        border-radius: var(--btn-radius, 2px);
+                        font-size: var(--lg-font-size, 20px);
+                        margin-top: var(--btn-margin-top, 2em);
+                        padding: var(--btn-padding, 1em 4em);
+                        font-weight: var(--main-font-weight, bold);
+                        text-transform: var(--header-text-transform, uppercase);
+                        letter-spacing: var(--header-text-letter-spacing, .035em);
+                        cursor: pointer;
+                        outline: 0;
+                       `
         sendBtn.setAttribute('type', 'button');
         sendBtn.setAttribute('value', 'Send');
         sendBtn.onclick = this.sendClicked.bind(this);
-        sendBtn.setAttribute('style', 'width: 100%');
+        sendBtn.setAttribute('style', btnStyle);
         return sendBtn;
     }
 }

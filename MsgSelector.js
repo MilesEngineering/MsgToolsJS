@@ -32,7 +32,7 @@ class MsgSelector extends HTMLElement {
                              margin: var(--input-margin, 0 15px 30px 0);
                              min-width: var(--input-width, 100px);
                              background: var(--color-text, white);
-                             border-color: var(--color-text, white);
+                             border-color: var(--color-text, black);
                              height: var(--input-height, 35px);
                             `;
 
@@ -79,7 +79,7 @@ class MsgSelector extends HTMLElement {
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
             this.shadow.removeChild(item);
-            //TODO Do I need to remove the element from the document, or just from it's parent?
+            //TODO Do I need to remove the element from the document, or just from its parent?
             //document.removeElement(item);
         }
         // create a new thing after us: either another dropdown, or a message
@@ -90,10 +90,15 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
+        let msgSectionStyle = `padding: 0;
+                               width: 80%;
+                              `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
             let h = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = h;
+
+            div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
         }
     }
