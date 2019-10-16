@@ -18,7 +18,7 @@ class MsgTabs extends HTMLElement {
                          margin: var(--tab-margin, 0px);
                          font-family: var(--main-font, sans-serif);
                         `
-        var wrapperStyle = `padding: var(--wrapper-padding, 30px 45px);
+        var wrapperStyle = `padding: var(--wrapper-padding, 60px 45px);
                             border: var(--wrapper-border, 1px solid #222831);
                             font-family: var(--main-font, sans-serif);
                             font-size: var(--base-font-size, 18px);
@@ -76,7 +76,7 @@ class MsgTabs extends HTMLElement {
              border-radius: var(--border-radius, 4px 4px 0 0);
              font-family: var(--main-font, sans-serif);
              box-sizing: border-box;
-             text-transform: var(--header-text-transform, uppercase);
+             text-transform: var(--header-text-transform, normal);
              letter-spacing: var(--header-text-letter-spacing, .035em);
              `
         this.tabClicked(0);
