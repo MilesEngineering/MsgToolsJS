@@ -12,6 +12,11 @@ class MsgSelector extends HTMLElement {
     constructor() {
         super();
 
+        let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
+                                display: var(--msg-selector-display, flex);
+                               `;
+
+        this.setAttribute('style', msgSelectorStyle);
         this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         this.shadow = this.attachShadow({mode: 'open'});
         this.handler = this.getAttribute('handler');
