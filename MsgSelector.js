@@ -95,8 +95,8 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `padding: 0;
-                               width: 80%;
+        let msgSectionStyle = `padding: var(--selector-display-padding, 0);
+                               width: var(--selector-display-width, 60%);
                               `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
