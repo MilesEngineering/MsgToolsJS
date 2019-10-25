@@ -13,19 +13,19 @@ class MsgSelector extends HTMLElement {
         super();
         this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         this.shadow = this.attachShadow({mode: 'open'});
-        msgtools.DelayedInit.add(this);
         this.handler = this.getAttribute('handler');
-        
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
+        msgtools.DelayedInit.add(this);
     }
     init() {
         this.createDropDownList(0, msgtools.msgs);
     }
     createDropDownList(depth, msgtree) {
+        console.log(this.dropdowns);
         //console.log('creating dropdown list');
         //console.log(msgtree);
-        let dropdown = createChildElement(this.shadow, 'select');
+        var dropdown = createChildElement(this.shadow, 'select');
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
         let newDropdownCount = 0;
