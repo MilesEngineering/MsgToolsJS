@@ -12,8 +12,8 @@ class MsgTree extends HTMLElement {
         super();
         this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         this.shadow = this.attachShadow({mode: 'open'});
-        msgtools.DelayedInit.add(this);
         this.handler = this.getAttribute('handler');
+        msgtools.DelayedInit.add(this);
     }
     init() {
         let r = function(msgtree, domelem, filter, onclick, depth, displaydepth) {
@@ -58,7 +58,7 @@ class MsgTree extends HTMLElement {
         if(node.msgname != undefined) {
             this.handleMsgClick(node.msgname);
         }
-        
+
         let c = node.children;
         if(c[0] != undefined) {
             c = c[0].children;
