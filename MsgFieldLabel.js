@@ -53,7 +53,9 @@ class MsgElement extends HTMLElement {
             }
         }
         this.fieldNames = fieldNames;
-
+        if(this.hasAttribute('labels')) {
+            this.fieldNames = this.getAttribute('labels').split(",");
+        }
         // list with a HTML element for each field
         this.fields = [];
 
@@ -302,7 +304,7 @@ class MsgEditColumn extends MsgEdit {
             var tr = createChildElement(this.table, 'tr');
             var td = createChildElement(tr, 'td');
             td.setAttribute('colspan', '2');
-            td.textContent = this.msgName;
+            td.textContent = 'Message: ' + this.msgName;
         }
         for(var i=0; i<this.fieldInfos.length; i++) {
             var fieldInfo = this.fieldInfos[i];
