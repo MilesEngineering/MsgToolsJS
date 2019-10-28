@@ -244,6 +244,7 @@ class MsgEdit extends MsgElement {
         var sendBtn = document.createElement('input');
         var btnStyle = `background-color: var(--color-alert, white);
                         border-color: var(--color-alert, black);
+                        color: var(--color-text, black);
                         border-radius: var(--btn-radius, 2px);
                         font-size: var(--lg-font-size, 20px);
                         margin-top: var(--btn-margin-top, 2em);

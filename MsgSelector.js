@@ -30,9 +30,6 @@ class MsgSelector extends HTMLElement {
     }
 
     createDropDownList(depth, msgtree) {
-        console.log(this.dropdowns);
-        //console.log('creating dropdown list');
-        //console.log(msgtree);
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
                              margin: var(--input-margin, 0 15px 30px 0);
                              min-width: var(--input-width, 100px);
@@ -56,7 +53,6 @@ class MsgSelector extends HTMLElement {
             // OR if the filter matches.
             let value=msgtree[name];
             if(value == undefined || value.prototype == undefined || this.filter == '' || name.startsWith(this.filter)) {
-                //console.log("  adding option " + name);
                 let option = createChildElement(dropdown, 'option');
                 //option.setAttribute('value', name);
                 option.textContent = name;
