@@ -20,11 +20,18 @@ class MsgSelector extends HTMLElement {
     }
     init() {
         this.createDropDownList(0, msgtools.msgs);
+        // check if there's an attribute for selection default 'initialSelection'
+        // if it exists, then load that, otherwise start from top of dropdown
+        if(this.hasAttribute('initialSelection')) {
+            const initialSelection = this.getAttribute('initialSelection');
+            const initialSelections = initialSelection.split('.');
+            for(let i = 0; i < initialSelections.length; i ++){
+                this.dropdowns[i].value = initialSelections[i];
+                this.dropdowns[i].dispatchEvent(new Event('change'));
+            }
+        }
     }
     createDropDownList(depth, msgtree) {
-        console.log(this.dropdowns);
-        //console.log('creating dropdown list');
-        //console.log(msgtree);
         var dropdown = createChildElement(this.shadow, 'select');
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
