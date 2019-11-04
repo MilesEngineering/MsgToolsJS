@@ -27,6 +27,7 @@ class MsgSelector extends HTMLElement {
             const initialSelections = initialSelection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
                 this.dropdowns[i].value = initialSelections[i];
+                // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
             }
         }
