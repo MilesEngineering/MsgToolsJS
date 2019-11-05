@@ -9,7 +9,7 @@ var svgns = "http://www.w3.org/2000/svg";
 class MsgBasePlot extends HTMLElement {
     constructor() {
         super();
-
+        
         this.shadow = this.attachShadow({mode: 'open'});
 
         var style = document.createElement('style');
@@ -42,7 +42,7 @@ svg {
    stroke-width: 1.5;
 }`;
         this.shadow.appendChild(style);
-        
+
         if(this.hasAttribute('timeLimit')) {
             this.timeLimit = parseFloat(this.getAttribute('timeLimit')); // seconds
         } else {
@@ -58,7 +58,7 @@ svg {
             this.yMax = 1;
             this.autoscale = 1;
         }
-    
+
         // #a09344
         // #7f64b9
         // #c36785
@@ -82,7 +82,7 @@ svg {
         window.addEventListener('visibilitychange', this.resize.bind(this));
         this.resize();
     }
-    
+
     configureDataSets(labels)
     {
         let colors = ['red','blue','green','orange','purple','hotpink','cyan','limegreen','magenta','darkred','darkblue','darkgreen','darkorange','darkpurple'];
@@ -172,8 +172,8 @@ svg {
                 .attr('class', name + ' group')
                 .style('stroke', group.color)
                 .style('stroke-width', 1);
-            
-            this.labels[name] = 
+
+            this.labels[name] =
                 this.svg_selector.append('text')
                     .attr('class', 'value xvalue')
                     .attr('x', this.yAxisLabelWidth+10)
@@ -204,7 +204,7 @@ svg {
             i += 1;
         }
     }
-    
+
     autoscaleYAxis() {
         var newMin = Number.POSITIVE_INFINITY;
         var newMax = Number.NEGATIVE_INFINITY;
@@ -231,7 +231,7 @@ svg {
             this.initFromData();
         }
     }
-    
+
     adjustTimeLimit(newLimit) {
         this.timeLimit = Math.abs(newLimit);
         this.emptySVG();
@@ -257,7 +257,7 @@ svg {
             this.shift = time;
         }
         // the performance of this approach comes from not having to recompute
-        // the path data with every update. 
+        // the path data with every update.
         this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(time-this.shift)*this.pixelPerSecond)+' 0)');
 
         // figure out how many of the initial items are expired
@@ -276,7 +276,7 @@ svg {
             this.dataSets[name].data.splice(0, expired);
             this.dataSets[name].pathData.splice(0, expired);
         }
-        
+
         this.timestamps.push(time);
         var dataNum = 0;
         for (var name in this.dataSets)
