@@ -88,10 +88,26 @@ class MsgSelector extends HTMLElement {
     handleMsgClick(msgclass) {
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
-            let h = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
-            div.innerHTML = h;
+            let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
+            div.innerHTML = htmlStr;
             this.dropdowns.push(div);
+
+            console.log('handleMsgCLick ' + this.handler);
+            console.log('handleMsgCLick ' + msgclass.prototype.MSG_NAME);
+
+            var event = new CustomEvent('settingsChanged', {
+                settings: this.currentSettings()
+            })
+            this.dispatchEvent(event);
         }
+    }
+
+    currentSettings(){
+        // look inside the div and get handler object, and then call currentSettings()
+        // on it
+
+        var handlerObj = this.shadowRoot.querySelector('div > *');
+        console.log(handlerObj.currentSettings());
     }
 }
 

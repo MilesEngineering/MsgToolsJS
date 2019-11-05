@@ -22,6 +22,7 @@ class MsgElement extends HTMLElement {
         msgtools.DelayedInit.add(this);
     }
     init() {
+        console.log('in MsgElement');
         this.msgClass = msgtools.findMessageByName(this.msgName);
         if(typeof this.msgClass == "undefined") {
             let error_string = "Error! Message name " + this.msgName + " is not defined";
@@ -30,7 +31,7 @@ class MsgElement extends HTMLElement {
             console.log(error_string);
             return;
         }
-        
+
         var fieldNames;
         if(this.hasAttribute('fields')) {
             fieldNames = this.getAttribute('fields').split(",");
@@ -67,10 +68,14 @@ class MsgElement extends HTMLElement {
         }
         this.createFields();
     }
+
+    currentSettings() {
+        return this.msgName;
+    }
 }
 
 /*
- * Displays field values for a message. 
+ * Displays field values for a message.
  */
 class MsgLabels extends MsgElement {
     constructor() {
@@ -155,6 +160,7 @@ class MsgLabelsRow extends MsgLabels {
             this.fields.push(td);
         }
     }
+
 }
 
 /*
@@ -184,7 +190,7 @@ class MsgLabelsColumn extends MsgLabels {
 }
 
 /*
- * Edit field values for a message. 
+ * Edit field values for a message.
  */
 class MsgEdit extends MsgElement {
     constructor() {
@@ -200,7 +206,7 @@ class MsgEdit extends MsgElement {
             var value = this.fields[i].value;
             msg[fieldInfo.set](value);
         }
-        //console.log("MsgEdit.Send: "+msgtools.toJSON(msg));
+        // console.log("MsgEdit.Send: " + msgtools.toJSON(msg));
         msgtools.client.sendMessage(msg);
     }
     editWidget(fieldInfo) {
@@ -293,6 +299,7 @@ class MsgEditColumn extends MsgEdit {
         td.setAttribute('colspan', '2');
         td.appendChild(this.sendButton());
     }
+
 }
 
 
