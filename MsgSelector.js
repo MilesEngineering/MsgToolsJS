@@ -20,10 +20,10 @@ class MsgSelector extends HTMLElement {
     }
     init() {
         this.createDropDownList(0, msgtools.msgs);
-        // check if there's an attribute for selection default 'initialSelection'
+        // check if there's an attribute for selection default 'selection'
         // if it exists, then load that, otherwise start from top of dropdown
-        if(this.hasAttribute('initialSelection')) {
-            const initialSelection = this.getAttribute('initialSelection');
+        if(this.hasAttribute('selection' || this.getAttribute('selection') != "")) {
+            const initialSelection = this.getAttribute('selection');
             const initialSelections = initialSelection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
                 this.dropdowns[i].value = initialSelections[i];
