@@ -78,7 +78,7 @@ class MsgTree extends HTMLElement {
         }
     }
     handleMsgClick(msgname) {
-        //console.log('click on ' + msgname);
+        // console.log('click on ' + msgname);
         let msgclass = msgtools.findMessageByName(msgname);
         //console.log(msgclass);
         if(this.handler != undefined) {
