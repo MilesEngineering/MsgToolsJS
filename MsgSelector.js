@@ -9,17 +9,31 @@ function createChildElement(parent, childName) {
 }
 
 class MsgSelector extends HTMLElement {
-    constructor() {
+    constructor(handlerClass = undefined, selection = undefined, filter = undefined) {
         super();
+        if (filter !== undefined) {
+            this.filter = filter;
+        } else {
+            this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
+        }
 
         let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
                                 display: var(--msg-selector-display, flex);
                                `;
 
         this.setAttribute('style', msgSelectorStyle);
-        this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
+
         this.shadow = this.attachShadow({mode: 'open'});
-        this.handler = this.getAttribute('handler');
+        if (handler !== undefined) {
+            this.handler = handler;
+        } else {
+            this.handler = this.getAttribute('handler');
+        }
+        if (selection !== undefined) {
+            this.selection = selection;
+        } else {
+            this.selection = this.getAttribute('selection');
+        }
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
         msgtools.DelayedInit.add(this);
@@ -27,9 +41,20 @@ class MsgSelector extends HTMLElement {
 
     init() {
         this.createDropDownList(0, msgtools.msgs);
+        // check if there's an attribute for selection default 'selection'
+        // if it exists, then load that, otherwise start from top of dropdown
+        if(this.selection != undefined) {
+            const initialSelections = this.selection.split('.');
+            for(let i = 0; i < initialSelections.length; i ++){
+                this.dropdowns[i].value = initialSelections[i];
+                // force component to load the msg fields
+                this.dropdowns[i].dispatchEvent(new Event('change'));
+            }
+        }
     }
 
     createDropDownList(depth, msgtree) {
+
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
                              margin: var(--input-margin, 0 15px 30px 0);
                              min-width: var(--input-width, 100px);
@@ -96,14 +121,27 @@ class MsgSelector extends HTMLElement {
                               `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
-            let h = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
-            div.innerHTML = h;
 
+            let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
+            div.innerHTML = htmlStr;
             div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
+
+            // used to dispatch an event that includes the user's current choice 
+            var event = new CustomEvent('settingsChanged', {
+                detail: this.currentSettings()
+            })
+            this.dispatchEvent(event);
         }
+    }
+
+    currentSettings(){
+        // look inside the div to see what the selection was and return the string
+        var handlerObj = this.shadowRoot.querySelector('div > *');
+        return handlerObj.currentSettings();
     }
 }
 
 customElements.define('msgtools-msgselector', MsgSelector);
+window.MsgSelector = MsgSelector;
 }
