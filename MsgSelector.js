@@ -40,12 +40,18 @@ class MsgSelector extends HTMLElement {
     }
 
     init() {
+        // ToDo: instead of creating dropdown list and then modifying them with
+        // a value and an event, add a perameter to createDropDownList() to take
+        // a pre-selected value, if it exists, and then dispatch an event to force
+        // the widget to load its contents
+
         this.createDropDownList(0, msgtools.msgs);
         // check if there's an attribute for selection default 'selection'
         // if it exists, then load that, otherwise start from top of dropdown
         if(this.selection != undefined) {
             const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
+                console.log(this.dropdowns);
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
