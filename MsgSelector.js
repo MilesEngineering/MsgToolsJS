@@ -11,6 +11,12 @@ function createChildElement(parent, childName) {
 class MsgSelector extends HTMLElement {
     constructor() {
         super();
+
+        let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
+                                display: var(--msg-selector-display, flex);
+                               `;
+
+        this.setAttribute('style', msgSelectorStyle);
         this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         this.shadow = this.attachShadow({mode: 'open'});
         this.handler = this.getAttribute('handler');
@@ -18,14 +24,22 @@ class MsgSelector extends HTMLElement {
         this.dropdowns = [];
         msgtools.DelayedInit.add(this);
     }
+
     init() {
         this.createDropDownList(0, msgtools.msgs);
     }
+
     createDropDownList(depth, msgtree) {
-        console.log(this.dropdowns);
-        //console.log('creating dropdown list');
-        //console.log(msgtree);
-        var dropdown = createChildElement(this.shadow, 'select');
+        let dropdownStyle = `font-size: var(--base-font-size, 18px);
+                             margin: var(--input-margin, 0 15px 30px 0);
+                             min-width: var(--input-width, 100px);
+                             background: var(--color-text, white);
+                             border-color: var(--color-text, black);
+                             height: var(--input-height, 35px);
+                            `;
+
+        let dropdown = createChildElement(this.shadow, 'select');
+        dropdown.setAttribute('style', dropdownStyle);
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
         let newDropdownCount = 0;
@@ -39,7 +53,6 @@ class MsgSelector extends HTMLElement {
             // OR if the filter matches.
             let value=msgtree[name];
             if(value == undefined || value.prototype == undefined || this.filter == '' || name.startsWith(this.filter)) {
-                //console.log("  adding option " + name);
                 let option = createChildElement(dropdown, 'option');
                 //option.setAttribute('value', name);
                 option.textContent = name;
@@ -67,7 +80,7 @@ class MsgSelector extends HTMLElement {
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
             this.shadow.removeChild(item);
-            //TODO Do I need to remove the element from the document, or just from it's parent?
+            //TODO Do I need to remove the element from the document, or just from its parent?
             //document.removeElement(item);
         }
         // create a new thing after us: either another dropdown, or a message
@@ -78,10 +91,15 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
+        let msgSectionStyle = `padding: var(--selector-display-padding, 0);
+                               width: var(--selector-display-width, 60%);
+                              `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
             let h = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = h;
+
+            div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
         }
     }
