@@ -17,13 +17,18 @@ class MsgTree extends HTMLElement {
     }
     init() {
         let r = function(msgtree, domelem, filter, onclick, depth, displaydepth) {
+
+
             domelem = createChildElement(domelem, 'ul');
             // Don't attach onclick on the UL, only do it on the children LIs
             //domelem.onclick = onclick;
             domelem.setAttribute('style', 'cursor: pointer;');
-            let style = 'display: none; cursor: pointer;'
+            let style = `display: none;
+                         cursor: pointer;`
             if(depth <= displaydepth) {
-                style = 'display: list; cursor: pointer;';
+                style = `display: list;
+                         cursor: pointer;
+                         list-style: none;`;
             }
             for(const name of Object.keys(msgtree).sort()) {
                 // skip the 'Network' messages, we don't need them.
@@ -73,7 +78,7 @@ class MsgTree extends HTMLElement {
         }
     }
     handleMsgClick(msgname) {
-        //console.log('click on ' + msgname);
+        // console.log('click on ' + msgname);
         let msgclass = msgtools.findMessageByName(msgname);
         //console.log(msgclass);
         if(this.handler != undefined) {
