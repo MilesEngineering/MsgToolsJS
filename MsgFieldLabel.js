@@ -191,7 +191,7 @@ class MsgLabelsColumn extends MsgLabels {
                 td.textContent = this.fieldNames[i];
             }
             var td = createChildElement(tr, 'td');
-            var tdStyle = `background-color: var(--color-text, white);
+            var tdStyle = `background-color: var(--background-color, white);
                            color: var(--color-dark, black);
                            border-radius: var(--input-radius, 2px);
                            width: 50%;
@@ -248,7 +248,7 @@ class MsgEdit extends MsgElement {
         var sendBtn = document.createElement('input');
         var btnStyle = `background-color: var(--color-alert, white);
                         border-color: var(--color-alert, black);
-                        color: var(--color-text, black);
+                        color: var(--button-color, black);
                         border-radius: var(--btn-radius, 2px);
                         font-size: var(--lg-font-size, 20px);
                         margin-top: var(--btn-margin-top, 2em);

@@ -58,7 +58,7 @@ class MsgSelector extends HTMLElement {
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
                              margin: var(--input-margin, 0 15px 30px 0);
                              min-width: var(--input-width, 100px);
-                             background: var(--color-text, white);
+                             background: var(--background-color, white);
                              border-color: var(--color-text, black);
                              height: var(--input-height, 35px);
                             `;
@@ -127,7 +127,7 @@ class MsgSelector extends HTMLElement {
             div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
 
-            // used to dispatch an event that includes the user's current choice 
+            // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
                 detail: this.currentSettings()
             })
