@@ -61,19 +61,24 @@ if (typeof MsgPlot !== "undefined") {
             let labels = [];
             for(var i=0; i<fieldNames.length; i++) {
                 var fieldName = fieldNames[i];
-                
+
                 // if the name looks like an array index, handle it like an array
-                if('[' in fieldName && ']' in fieldName) {
+                if(fieldName.includes('[') && fieldName.includes(']') ) {
                     fieldBaseName = fieldName;
                     fieldBaseName.remove("[.*]");
-                    this.fieldInfos.push(msgtools.findFieldInfo(this.msgClass, fieldBaseName));
-                    
+                    let fieldInfo = msgtools.findFieldInfo(this.msgClass, fieldBaseName);
+                    if (fieldInfo === undefined) {
+                        console.log('error: fieldName ' + fieldBaseName + ' is not in ' + msgName);
+                    } else {
+                        this.fieldInfos.push(fieldInfo);
+                    }
+
                     // if the hash table of lists of array elements to plot doesn't have a list
                     // for our field yet, add it.
                     if(!fieldBaseName in this.fieldArrayElems) {
                         this.fieldArrayElems[fieldBaseName] = [];
                     }
-                    
+
                     // figure out what element it is
                     var elem_number = fieldName;
                     elem_number.removeStart(fieldBaseName);
@@ -94,8 +99,13 @@ if (typeof MsgPlot !== "undefined") {
                         }
                     }
                 } else {
-                    this.fieldInfos.push(msgtools.findFieldInfo(this.msgClass, fieldName));
-                    labels.push(fieldName);
+                    let fieldInfo = msgtools.findFieldInfo(this.msgClass, fieldName);
+                    if (fieldInfo === undefined) {
+                        console.log('error: fieldName ' + fieldName + ' is not in ' + msgName);
+                    } else {
+                        this.fieldInfos.push(fieldInfo);
+                        labels.push(fieldName);
+                    }
                 }
             }
             // only actually set the plot legend labels if the user *DIDN'T* specify them
@@ -112,7 +122,6 @@ if (typeof MsgPlot !== "undefined") {
     }
 
     plot(msg) {
-        console.log(msg);
         var time = msg.hdr.GetTime();
         var newData = [];
         // iterate over all our field infos, and get the value of each field
@@ -121,16 +130,13 @@ if (typeof MsgPlot !== "undefined") {
             // values at the specified indicies and get those values.
             var fieldInfo = this.fieldInfos[i];
             if(fieldInfo.name in this.fieldArrayElems) {
-                console.log(fieldInfo.name + " is array");
                 let fieldElemsToPlot = this.fieldArrayElems[fieldInfo.name];
                 for(var elem_index=0; elem_index<fieldElemsToPlot.length; ++elem_index) {
                     let elem_number = fieldElemsToPlot[elem_index];
                     let value = msg[fieldInfo.get](elem_number);
-                    console.log(fieldInfo.name+"["+elem_number+"] = " + value);
                     newData.push(value);
                 }
             } else {
-                console.log(fieldInfo.name);
                 var value = msg[fieldInfo.get]();
                 newData.push(value);
             }
