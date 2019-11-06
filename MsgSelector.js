@@ -16,6 +16,13 @@ class MsgSelector extends HTMLElement {
         } else {
             this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         }
+
+        let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
+                                display: var(--msg-selector-display, flex);
+                               `;
+
+        this.setAttribute('style', msgSelectorStyle);
+
         this.shadow = this.attachShadow({mode: 'open'});
         if (handler !== undefined) {
             this.handler = handler;
@@ -31,6 +38,7 @@ class MsgSelector extends HTMLElement {
         this.dropdowns = [];
         msgtools.DelayedInit.add(this);
     }
+
     init() {
         this.createDropDownList(0, msgtools.msgs);
         // check if there's an attribute for selection default 'selection'
@@ -44,8 +52,19 @@ class MsgSelector extends HTMLElement {
             }
         }
     }
+
     createDropDownList(depth, msgtree) {
-        var dropdown = createChildElement(this.shadow, 'select');
+
+        let dropdownStyle = `font-size: var(--base-font-size, 18px);
+                             margin: var(--input-margin, 0 15px 30px 0);
+                             min-width: var(--input-width, 100px);
+                             background: var(--color-text, white);
+                             border-color: var(--color-text, black);
+                             height: var(--input-height, 35px);
+                            `;
+
+        let dropdown = createChildElement(this.shadow, 'select');
+        dropdown.setAttribute('style', dropdownStyle);
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
         let newDropdownCount = 0;
@@ -86,7 +105,7 @@ class MsgSelector extends HTMLElement {
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
             this.shadow.removeChild(item);
-            //TODO Do I need to remove the element from the document, or just from it's parent?
+            //TODO Do I need to remove the element from the document, or just from its parent?
             //document.removeElement(item);
         }
         // create a new thing after us: either another dropdown, or a message
@@ -97,10 +116,15 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
+        let msgSectionStyle = `padding: var(--selector-display-padding, 0);
+                               width: var(--selector-display-width, 60%);
+                              `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
+
             let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = htmlStr;
+            div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
 
             // used to dispatch an event that includes the user's current choice 
