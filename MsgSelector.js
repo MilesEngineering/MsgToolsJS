@@ -103,6 +103,7 @@ class MsgSelector extends HTMLElement {
             div.innerHTML = htmlStr;
             this.dropdowns.push(div);
 
+            // used to dispatch an event that includes the user's current choice 
             var event = new CustomEvent('settingsChanged', {
                 detail: this.currentSettings()
             })
@@ -111,9 +112,7 @@ class MsgSelector extends HTMLElement {
     }
 
     currentSettings(){
-        // look inside the div and get handler object, and then call currentSettings()
-        // on it
-
+        // look inside the div to see what the selection was and return the string
         var handlerObj = this.shadowRoot.querySelector('div > *');
         return handlerObj.currentSettings();
     }
