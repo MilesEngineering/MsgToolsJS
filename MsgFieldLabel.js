@@ -177,7 +177,7 @@ class MsgLabelsColumn extends MsgLabels {
             var tr = createChildElement(this.table, 'tr');
             if(this.showHeader) {
                 let td = createChildElement(tr, 'td');
-                let tdHeadStyle = `color: var(--color-text, white);
+                let tdHeadStyle = `color: var(--color-text, black);
                                    text-align: right;
                                    padding-right: 15px;
                                    width: 10%;
