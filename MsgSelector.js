@@ -9,11 +9,24 @@ function createChildElement(parent, childName) {
 }
 
 class MsgSelector extends HTMLElement {
-    constructor() {
+    constructor(handlerClass = undefined, selection = undefined, filter = undefined) {
         super();
-        this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
+        if (filter !== undefined) {
+            this.filter = filter;
+        } else {
+            this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
+        }
         this.shadow = this.attachShadow({mode: 'open'});
-        this.handler = this.getAttribute('handler');
+        if (handler !== undefined) {
+            this.handler = handler;
+        } else {
+            this.handler = this.getAttribute('handler');
+        }
+        if (selection !== undefined) {
+            this.selection = selection;
+        } else {
+            this.selection = this.getAttribute('selection');
+        }
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
         msgtools.DelayedInit.add(this);
@@ -22,9 +35,8 @@ class MsgSelector extends HTMLElement {
         this.createDropDownList(0, msgtools.msgs);
         // check if there's an attribute for selection default 'selection'
         // if it exists, then load that, otherwise start from top of dropdown
-        if(this.hasAttribute('selection' || this.getAttribute('selection') != "")) {
-            const initialSelection = this.getAttribute('selection');
-            const initialSelections = initialSelection.split('.');
+        if(this.selection != undefined) {
+            const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
@@ -47,7 +59,6 @@ class MsgSelector extends HTMLElement {
             // OR if the filter matches.
             let value=msgtree[name];
             if(value == undefined || value.prototype == undefined || this.filter == '' || name.startsWith(this.filter)) {
-                //console.log("  adding option " + name);
                 let option = createChildElement(dropdown, 'option');
                 //option.setAttribute('value', name);
                 option.textContent = name;
@@ -92,11 +103,8 @@ class MsgSelector extends HTMLElement {
             div.innerHTML = htmlStr;
             this.dropdowns.push(div);
 
-            console.log('handleMsgCLick ' + this.handler);
-            console.log('handleMsgCLick ' + msgclass.prototype.MSG_NAME);
-
             var event = new CustomEvent('settingsChanged', {
-                settings: this.currentSettings()
+                detail: this.currentSettings()
             })
             this.dispatchEvent(event);
         }
@@ -107,9 +115,10 @@ class MsgSelector extends HTMLElement {
         // on it
 
         var handlerObj = this.shadowRoot.querySelector('div > *');
-        console.log(handlerObj.currentSettings());
+        return handlerObj.currentSettings();
     }
 }
 
 customElements.define('msgtools-msgselector', MsgSelector);
+window.MsgSelector = MsgSelector;
 }
