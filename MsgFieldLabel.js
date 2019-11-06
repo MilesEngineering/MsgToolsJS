@@ -70,6 +70,10 @@ class MsgElement extends HTMLElement {
         }
         this.createFields();
     }
+
+    currentSettings() {
+        return this.msgName;
+    }
 }
 
 /*
@@ -160,6 +164,7 @@ class MsgLabelsRow extends MsgLabels {
             this.fields.push(td);
         }
     }
+
 }
 
 /*
@@ -218,7 +223,6 @@ class MsgEdit extends MsgElement {
             var value = this.fields[i].value;
             msg[fieldInfo.set](value);
         }
-        //console.log("MsgEdit.Send: "+msgtools.toJSON(msg));
         msgtools.client.sendMessage(msg);
     }
     editWidget(fieldInfo) {
@@ -324,6 +328,7 @@ class MsgEditColumn extends MsgEdit {
         td.setAttribute('colspan', '2');
         td.appendChild(this.sendButton());
     }
+
 }
 
 
