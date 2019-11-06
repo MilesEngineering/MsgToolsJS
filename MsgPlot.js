@@ -8,13 +8,13 @@ if (typeof MsgPlot !== "undefined") {
  class MsgPlot extends MsgBasePlot {
     constructor() {
         super();
+        this.msgName = this.getAttribute('msgName');
         msgtools.DelayedInit.add(this);
     }
     init() {
-        var msgName = this.getAttribute('msgName');
-        this.msgClass = msgtools.findMessageByName(msgName);
+        this.msgClass = msgtools.findMessageByName(this.msgName);
         if(typeof this.msgClass == "undefined") {
-            let error_string = "Error! Message name " + msgName + " is not defined";
+            let error_string = "Error! Message name " + this.msgName + " is not defined";
             let error_elem = document.createElement('div');
             this.shadow.appendChild(error_elem);
             error_elem.textContent = error_string;
@@ -68,7 +68,7 @@ if (typeof MsgPlot !== "undefined") {
                     fieldBaseName.remove("[.*]");
                     let fieldInfo = msgtools.findFieldInfo(this.msgClass, fieldBaseName);
                     if (fieldInfo === undefined) {
-                        console.log('error: fieldName ' + fieldBaseName + ' is not in ' + msgName);
+                        console.log('error: fieldName ' + fieldBaseName + ' is not in ' + this.msgName);
                     } else {
                         this.fieldInfos.push(fieldInfo);
                     }
@@ -101,7 +101,7 @@ if (typeof MsgPlot !== "undefined") {
                 } else {
                     let fieldInfo = msgtools.findFieldInfo(this.msgClass, fieldName);
                     if (fieldInfo === undefined) {
-                        console.log('error: fieldName ' + fieldName + ' is not in ' + msgName);
+                        console.log('error: fieldName ' + fieldName + ' is not in ' + this.msgName);
                     } else {
                         this.fieldInfos.push(fieldInfo);
                         labels.push(fieldName);
@@ -142,6 +142,10 @@ if (typeof MsgPlot !== "undefined") {
             }
         }
         super.plot(time, newData);
+    }
+
+    currentSettings() {
+        return this.msgName;
     }
 
 }
