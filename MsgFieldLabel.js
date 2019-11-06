@@ -22,7 +22,6 @@ class MsgElement extends HTMLElement {
         msgtools.DelayedInit.add(this);
     }
     init() {
-        console.log('in MsgElement');
         this.msgClass = msgtools.findMessageByName(this.msgName);
         if(typeof this.msgClass == "undefined") {
             let error_string = "Error! Message name " + this.msgName + " is not defined";
@@ -206,7 +205,6 @@ class MsgEdit extends MsgElement {
             var value = this.fields[i].value;
             msg[fieldInfo.set](value);
         }
-        // console.log("MsgEdit.Send: " + msgtools.toJSON(msg));
         msgtools.client.sendMessage(msg);
     }
     editWidget(fieldInfo) {
