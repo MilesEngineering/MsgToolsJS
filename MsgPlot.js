@@ -147,6 +147,7 @@ if (typeof MsgPlot !== "undefined") {
     currentSettings() {
         return this.msgName;
     }
+
 }
 
 customElements.define('msgtools-msgplot', MsgPlot);
