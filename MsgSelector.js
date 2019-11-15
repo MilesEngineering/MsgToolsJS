@@ -18,7 +18,7 @@ class MsgSelector extends HTMLElement {
         }
 
         let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
-                                display: var(--msg-selector-display, flex);
+                                display: var(--msg-selector-display, block);
                                `;
 
         this.setAttribute('style', msgSelectorStyle);
@@ -122,8 +122,9 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `padding: var(--selector-display-padding, 0);
-                               width: var(--selector-display-width, 60%);
+        let msgSectionStyle = `display: block;
+                               padding: var(--selector-display-padding, 0);
+                               width: var(--selector-display-width, 100%);
                               `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
