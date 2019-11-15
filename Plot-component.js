@@ -134,7 +134,7 @@ svg {
 
     initFromData()
     {
-        this.svg.setAttribute("viewBox", "0 0 "+(this.width)+" "+(this.height-this.xAxisLabelHeight));
+        this.svg.setAttribute("viewBox", "0 0 "+(this.width)+" "+(this.height));
 
         this.xScale = d3.scale.linear()
             .domain([-this.timeLimit, 0])
