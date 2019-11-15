@@ -74,6 +74,10 @@ class MsgElement extends HTMLElement {
     currentSettings() {
         return this.msgName;
     }
+    // implement resize, so we support the interface required by things that
+    // go in MsgSelector
+    resize() {
+    }
 }
 
 /*

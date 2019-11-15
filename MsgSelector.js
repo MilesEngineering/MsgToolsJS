@@ -155,11 +155,8 @@ class MsgSelector extends HTMLElement {
     }
     
     resize() {
-        // call resize() if we have an object, and resize is not undefined
         if(this.handlerObj != undefined) {
-            if(this.handlerObj.resize != undefined) {
                 this.handlerObj.resize();
-            }
         }
     }
 }
