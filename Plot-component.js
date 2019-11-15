@@ -84,8 +84,8 @@ svg {
         this.shadow.appendChild(this.svg);
         this.svg_selector = d3.select(this.svg);
 
-        window.addEventListener('resize', this.resize.bind(this));
-        window.addEventListener('visibilitychange', this.resize.bind(this));
+        //window.addEventListener('resize', this.resize.bind(this));
+        //window.addEventListener('visibilitychange', this.resize.bind(this));
         this.resize();
     }
 
@@ -106,31 +106,38 @@ svg {
         }
     }
 
-    resize()
+    resize(width=undefined, height=undefined)
     {
         // if the element is hidden, don't do anything.
         if(this.offsetParent === null) {
             return;
         }
-        var rect = this.parentElement.getBoundingClientRect();
-        this.width = rect.width;
-        this.height = rect.height;
-        if(this.hasAttribute('height')) {
-            var height = this.getAttribute('height');
-            if(height.includes("%")) {
-                this.height = this.height * height.replace("%","") / 100;
-            } else {
-                this.height = height;
+        if(width != undefined && height != undefined) {
+            this.width = width;
+            this.height = height;
+        } else {
+            var rect = this.parentElement.getBoundingClientRect();
+            this.width = rect.width;
+            this.height = rect.height;
+            if(this.hasAttribute('height')) {
+                var height = this.getAttribute('height');
+                if(height.includes("%")) {
+                    this.height = this.height * height.replace("%","") / 100;
+                } else {
+                    this.height = height;
+                }
+            }
+            if(this.hasAttribute('width')) {
+                var width = this.getAttribute('width');
+                if(width.includes("%")) {
+                    this.width = this.width * width.replace("%","") / 100;
+                } else {
+                    this.width = width;
+                }
             }
         }
-        if(this.hasAttribute('width')) {
-            var width = this.getAttribute('width');
-            if(width.includes("%")) {
-                this.width = this.width * width.replace("%","") / 100;
-            } else {
-                this.width = width;
-            }
-        }
+        this.svg.setAttribute('width', this.width);
+        this.svg.setAttribute('height', this.height);
         this.emptySVG();
         this.pixelPerSecond = ((this.width-2.0*this.yAxisLabelWidth)/this.timeLimit);
         this.initFromData();
@@ -138,7 +145,11 @@ svg {
 
     initFromData()
     {
-        this.svg.setAttribute("viewBox", "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+this.topMarginForScaleLabel));
+        //let viewBox = "0 0 "+(this.width)+" "+(this.height);
+        let viewBox = "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+this.topMarginForScaleLabel+this.xAxisLabelHeight)
+        //let viewBox = "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+50)
+        console.log(viewBox);
+        this.svg.setAttribute("viewBox", viewBox);
 
         this.xScale = d3.scale.linear()
             .domain([-this.timeLimit, 0])
@@ -146,13 +157,13 @@ svg {
 
         this.yScale = d3.scale.linear()
             .domain([this.yMin, this.yMax])
-            .range([this.height-this.xAxisLabelHeight, 0])
+            .range([this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel, 0])
 
         var that = this;
 
         this.xAxis = this.svg_selector.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (this.height-this.xAxisLabelHeight) + ')')
+            .attr('transform', 'translate(0,' + (this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel) + ')')
             .call(that.xScale.axis = d3.svg.axis().scale(that.xScale).orient('bottom'));
 
         this.yAxis = this.svg_selector.append('g')
@@ -235,7 +246,7 @@ svg {
             this.yMin = newMin;
             this.yScale = d3.scale.linear()
                 .domain([this.yMin, this.yMax])
-                .range([this.height-this.xAxisLabelHeight, 0])
+                .range([this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel, 0])
             this.emptySVG();
             this.initFromData();
         }

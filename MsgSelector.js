@@ -17,8 +17,7 @@ class MsgSelector extends HTMLElement {
             this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         }
 
-        let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
-                                display: var(--msg-selector-display, block);
+        let msgSelectorStyle = `display: var(--msg-selector-display, block);
                                `;
 
         this.setAttribute('style', msgSelectorStyle);
@@ -68,7 +67,7 @@ class MsgSelector extends HTMLElement {
     createDropDownList(depth, msgtree) {
 
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
-                             margin: var(--input-margin, 0 15px 30px 0);
+                             margin: var(--input-margin, 0 15px 15px 0);
                              min-width: var(--input-width, 100px);
                              background: var(--background-color, white);
                              border-color: var(--color-text, black);
@@ -145,10 +144,6 @@ class MsgSelector extends HTMLElement {
             this.dropdowns.push(div);
             this.handlerObj = div.firstElementChild;
 
-            let footer = createChildElement(this.parentDiv, 'div');
-            footer.style = 'flex: 0 1 40px;';
-            this.dropdowns.push(footer);
-            
             // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
                 detail: this.currentSettings()
@@ -164,9 +159,13 @@ class MsgSelector extends HTMLElement {
         return '';
     }
     
-    resize() {
+    resize(width, height) {
         if(this.handlerObj != undefined) {
-            this.handlerObj.resize();
+            //TODO Remove hard-coded constant!
+            // We need to resize the plot to the space allowed for it,
+            // by computing how big the stuff above it is and subtracting
+            // that from the input size.
+            this.handlerObj.resize(width-1, height-65);
         }
     }
 }
