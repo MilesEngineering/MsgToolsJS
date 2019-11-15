@@ -113,8 +113,6 @@ svg {
             return;
         }
         var rect = this.parentElement.getBoundingClientRect();
-        //console.log(rect);
-        //console.log(this.getBoundingClientRect());
         this.width = rect.width;
         this.height = rect.height;
         if(this.hasAttribute('height')) {
@@ -196,17 +194,22 @@ svg {
             for(var i=0; i<this.timestamps.length; i++) {
                 this.dataSets[name].pathData.push(((this.timestamps[i]-this.shift)*this.pixelPerSecond)+","+this.yScale(this.dataSets[name].data[i]));
             }
-            if(this.timestamps.length>2) {
+            if(this.timestamps.length>1) {
                 this.dataSets[name].path.attr("d", "M "+(this.dataSets[name].pathData.join(" L ")));
             }
         }
+        this.plotLatestData();
     }
 
-    setLegendValues(values) {
+    setLegendValues() {
         var i = 0;
         for (var name in this.labels) {
-            var val = values[i];
-            this.labels[name].text((val < 0 ? name : name+' ') + Math.round(val));
+            var val = '?';
+            if(name in this.dataSets && this.dataSets[name].data.length > 1) {
+                let lastIndex = this.dataSets[name].data.length-1;
+                val = Math.round(this.dataSets[name].data[lastIndex]);
+            }
+            this.labels[name].text((val < 0 ? name : name+' ') + val);
             i += 1;
         }
     }
@@ -230,13 +233,9 @@ svg {
            (newMin < this.yMin || newMin > this.yMin)) {
             this.yMax = newMax;
             this.yMin = newMin;
-            let domain = [this.yMin, this.yMax];
-            let range = [this.height-this.xAxisLabelHeight, 0]
             this.yScale = d3.scale.linear()
-                .domain(domain)
-                .range(range)
-            console.log(domain);
-            console.log(range);
+                .domain([this.yMin, this.yMax])
+                .range([this.height-this.xAxisLabelHeight, 0])
             this.emptySVG();
             this.initFromData();
         }
@@ -289,14 +288,18 @@ svg {
             // append a chunk of svg path data to the list
             this.dataSets[name].pathData.push(((time-this.shift)*this.pixelPerSecond)+","+this.yScale(value));
         }
-        
         if(this.autoscale) {
             this.autoscaleYAxis();
         }
-        this.setLegendValues(newData);
+        this.plotLatestData();
+    }
+    plotLatestData() {
+        this.setLegendValues();
         // the performance of this approach comes from not having to recompute
         // the path data with every update.
-        this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(time-this.shift)*this.pixelPerSecond)+' 0)');
+        if(this.now != undefined && this.shift != undefined ) {
+            this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(this.now-this.shift)*this.pixelPerSecond)+' 0)');
+        }
         for (var name in this.dataSets)
         {
             // convert the entire list into svg path data. just string concat
