@@ -56,7 +56,6 @@ class MsgSelector extends HTMLElement {
         if(this.selection != undefined) {
             const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
-                // console.log(this.dropdowns);
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
@@ -121,8 +120,6 @@ class MsgSelector extends HTMLElement {
             if(this.parentDiv.contains(item)){
                 this.parentDiv.removeChild(item);
             }
-            //TODO Do I need to remove the element from the document, or just from its parent?
-            //document.removeElement(item);
         }
         // create a new thing after us: either another dropdown, or a message
         if(node.prototype != undefined) {
@@ -132,7 +129,7 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `flex: 1 1 auto;
+        let msgSectionStyle = `flex: 1 1 auto; border:
                                padding: var(--selector-display-padding, 0);
                                `;
         if(this.handler != undefined) {
@@ -143,6 +140,9 @@ class MsgSelector extends HTMLElement {
             div.style = msgSectionStyle;
             this.dropdowns.push(div);
             this.handlerObj = div.firstElementChild;
+            // not sure why this is necessary, but without it, plots see their parent's
+            // getBoundingClientRect() as 150 pixels tall.
+            this.handlerObj.resize();
 
             // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
@@ -161,11 +161,11 @@ class MsgSelector extends HTMLElement {
     
     resize(width, height) {
         if(this.handlerObj != undefined) {
-            //TODO Remove hard-coded constant!
-            // We need to resize the plot to the space allowed for it,
-            // by computing how big the stuff above it is and subtracting
-            // that from the input size.
-            this.handlerObj.resize(width-1, height-70);
+            // for some reason i can't seem to compute an offset that works exactly right,
+            // i need to do *2 to seem to come close.
+            let top = this.headerRow.scrollHeight+this.parentDiv.offsetTop*2;
+            let left = this.parentDiv.offsetLeft+this.handlerObj.offsetLeft*2;
+            this.handlerObj.resize(width-left, height-top);
         }
     }
 }
