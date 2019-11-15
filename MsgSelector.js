@@ -165,7 +165,7 @@ class MsgSelector extends HTMLElement {
             // We need to resize the plot to the space allowed for it,
             // by computing how big the stuff above it is and subtracting
             // that from the input size.
-            this.handlerObj.resize(width-1, height-65);
+            this.handlerObj.resize(width-1, height-70);
         }
     }
 }
