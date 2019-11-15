@@ -17,13 +17,17 @@ class MsgSelector extends HTMLElement {
             this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         }
 
-        let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
-                                display: var(--msg-selector-display, block);
+        let msgSelectorStyle = `display: var(--msg-selector-display, block);
                                `;
 
         this.setAttribute('style', msgSelectorStyle);
 
         this.shadow = this.attachShadow({mode: 'open'});
+        this.parentDiv = createChildElement(this.shadow, 'div');
+        this.parentDiv.style = 'display: flex; flex-flow: column; height: 100%;';
+        this.headerRow = createChildElement(this.parentDiv, 'div');
+        this.headerRow.style = 'flex: 0 1 auto;';
+
         if (handlerClass !== undefined) {
             this.handler = handlerClass;
         } else {
@@ -52,7 +56,6 @@ class MsgSelector extends HTMLElement {
         if(this.selection != undefined) {
             const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
-                // console.log(this.dropdowns);
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
@@ -63,14 +66,14 @@ class MsgSelector extends HTMLElement {
     createDropDownList(depth, msgtree) {
 
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
-                             margin: var(--input-margin, 0 15px 30px 0);
+                             margin: var(--input-margin, 0 15px 15px 0);
                              min-width: var(--input-width, 100px);
                              background: var(--background-color, white);
                              border-color: var(--color-text, black);
                              height: var(--input-height, 35px);
                             `;
 
-        let dropdown = createChildElement(this.shadow, 'select');
+        let dropdown = createChildElement(this.headerRow, 'select');
         dropdown.setAttribute('style', dropdownStyle);
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
@@ -111,9 +114,12 @@ class MsgSelector extends HTMLElement {
         // throw away everything after the dropdown that just had something selected
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
-            this.shadow.removeChild(item);
-            //TODO Do I need to remove the element from the document, or just from its parent?
-            //document.removeElement(item);
+            if(this.headerRow.contains(item)){
+                this.headerRow.removeChild(item);
+            }
+            if(this.parentDiv.contains(item)){
+                this.parentDiv.removeChild(item);
+            }
         }
         // create a new thing after us: either another dropdown, or a message
         if(node.prototype != undefined) {
@@ -123,21 +129,20 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `display: block;
+        let msgSectionStyle = `flex: 1 1 auto; border:
                                padding: var(--selector-display-padding, 0);
-                               width: var(--selector-display-width, 100%);
-                               height: var(--selector-display-height, 100%);
-                              `;
+                               `;
         if(this.handler != undefined) {
-            let div = createChildElement(this.shadow, 'div');
+            let div = createChildElement(this.parentDiv, 'div');
 
             let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = htmlStr;
             div.style = msgSectionStyle;
             this.dropdowns.push(div);
-            // find the thing we just created.  if we don't do it like this,
-            // we get a 'div' and not an object of the proper type!
-            this.handlerObj = this.shadowRoot.querySelector('div > *');
+            this.handlerObj = div.firstElementChild;
+            // not sure why this is necessary, but without it, plots see their parent's
+            // getBoundingClientRect() as 150 pixels tall.
+            this.handlerObj.resize();
 
             // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
@@ -154,9 +159,13 @@ class MsgSelector extends HTMLElement {
         return '';
     }
     
-    resize() {
+    resize(width, height) {
         if(this.handlerObj != undefined) {
-                this.handlerObj.resize();
+            // for some reason i can't seem to compute an offset that works exactly right,
+            // i need to do *2 to seem to come close.
+            let top = this.headerRow.scrollHeight+this.parentDiv.offsetTop*2;
+            let left = this.parentDiv.offsetLeft+this.handlerObj.offsetLeft*2;
+            this.handlerObj.resize(width-left, height-top);
         }
     }
 }

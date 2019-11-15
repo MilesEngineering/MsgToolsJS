@@ -70,16 +70,22 @@ svg {
         this.timestamps = [];
 
         this.shift = null;
+        // this is for the width of the tick marks and labels on the y axis, on both sides of the plot
         this.yAxisLabelWidth = 50;
+        // this is for the height of the tick marks and labels on the x axis, on bottom of the plot
         this.xAxisLabelHeight = 20;
+        // this is to allow a label at the very top tick mark on the y axis to be totally visible.
+        // it should be 1/2 the height of text, because the label can be centered at the very
+        // top of the box (which would make half of it hang offscreen, if we didn't account for it).
+        this.topMarginForScaleLabel = 10;
 
         this.svg = document.createElementNS(svgns, 'svg');
         this.svg.setAttribute('class', 'chart');
         this.shadow.appendChild(this.svg);
         this.svg_selector = d3.select(this.svg);
 
-        window.addEventListener('resize', this.resize.bind(this));
-        window.addEventListener('visibilitychange', this.resize.bind(this));
+        //window.addEventListener('resize', this.resize.bind(this));
+        //window.addEventListener('visibilitychange', this.resize.bind(this));
         this.resize();
     }
 
@@ -100,33 +106,38 @@ svg {
         }
     }
 
-    resize()
+    resize(width=undefined, height=undefined)
     {
         // if the element is hidden, don't do anything.
         if(this.offsetParent === null) {
             return;
         }
-        var rect = this.parentElement.getBoundingClientRect();
-        //console.log(rect);
-        //console.log(this.getBoundingClientRect());
-        this.width = rect.width;
-        this.height = rect.height;
-        if(this.hasAttribute('height')) {
-            var height = this.getAttribute('height');
-            if(height.includes("%")) {
-                this.height = this.height * height.replace("%","") / 100;
-            } else {
-                this.height = height;
+        if(width != undefined && height != undefined) {
+            this.width = width;
+            this.height = height;
+        } else {
+            var rect = this.parentElement.getBoundingClientRect();
+            this.width = rect.width;
+            this.height = rect.height;
+            if(this.hasAttribute('height')) {
+                var height = this.getAttribute('height');
+                if(height.includes("%")) {
+                    this.height = this.height * height.replace("%","") / 100;
+                } else {
+                    this.height = height;
+                }
+            }
+            if(this.hasAttribute('width')) {
+                var width = this.getAttribute('width');
+                if(width.includes("%")) {
+                    this.width = this.width * width.replace("%","") / 100;
+                } else {
+                    this.width = width;
+                }
             }
         }
-        if(this.hasAttribute('width')) {
-            var width = this.getAttribute('width');
-            if(width.includes("%")) {
-                this.width = this.width * width.replace("%","") / 100;
-            } else {
-                this.width = width;
-            }
-        }
+        this.svg.setAttribute('width', this.width);
+        this.svg.setAttribute('height', this.height);
         this.emptySVG();
         this.pixelPerSecond = ((this.width-2.0*this.yAxisLabelWidth)/this.timeLimit);
         this.initFromData();
@@ -134,7 +145,8 @@ svg {
 
     initFromData()
     {
-        this.svg.setAttribute("viewBox", "0 0 "+(this.width)+" "+(this.height));
+        let viewBox = "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+this.topMarginForScaleLabel+this.xAxisLabelHeight)
+        this.svg.setAttribute("viewBox", viewBox);
 
         this.xScale = d3.scale.linear()
             .domain([-this.timeLimit, 0])
@@ -142,13 +154,13 @@ svg {
 
         this.yScale = d3.scale.linear()
             .domain([this.yMin, this.yMax])
-            .range([this.height-this.xAxisLabelHeight, 0])
+            .range([this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel, 0])
 
         var that = this;
 
         this.xAxis = this.svg_selector.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (this.height-this.xAxisLabelHeight) + ')')
+            .attr('transform', 'translate(0,' + (this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel) + ')')
             .call(that.xScale.axis = d3.svg.axis().scale(that.xScale).orient('bottom'));
 
         this.yAxis = this.svg_selector.append('g')
@@ -190,17 +202,22 @@ svg {
             for(var i=0; i<this.timestamps.length; i++) {
                 this.dataSets[name].pathData.push(((this.timestamps[i]-this.shift)*this.pixelPerSecond)+","+this.yScale(this.dataSets[name].data[i]));
             }
-            if(this.timestamps.length>2) {
+            if(this.timestamps.length>1) {
                 this.dataSets[name].path.attr("d", "M "+(this.dataSets[name].pathData.join(" L ")));
             }
         }
+        this.plotLatestData();
     }
 
-    setValues(values) {
+    setLegendValues() {
         var i = 0;
         for (var name in this.labels) {
-            var val = values[i];
-            this.labels[name].text((val < 0 ? name : name+' ') + Math.round(val));
+            var val = '?';
+            if(name in this.dataSets && this.dataSets[name].data.length > 1) {
+                let lastIndex = this.dataSets[name].data.length-1;
+                val = Math.round(this.dataSets[name].data[lastIndex]);
+            }
+            this.labels[name].text((val < 0 ? name : name+' ') + val);
             i += 1;
         }
     }
@@ -226,7 +243,7 @@ svg {
             this.yMin = newMin;
             this.yScale = d3.scale.linear()
                 .domain([this.yMin, this.yMax])
-                .range([this.height-this.xAxisLabelHeight, 0])
+                .range([this.height-this.xAxisLabelHeight-this.topMarginForScaleLabel, 0])
             this.emptySVG();
             this.initFromData();
         }
@@ -246,19 +263,12 @@ svg {
     }
 
     plot(time, newData) {
-        if(this.autoscale) {
-            this.autoscaleYAxis();
-        }
-        this.setValues(newData);
         //time /= 1000.0;
         this.now = time;
         // Add new values
         if(this.shift === null) {
             this.shift = time;
         }
-        // the performance of this approach comes from not having to recompute
-        // the path data with every update.
-        this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(time-this.shift)*this.pixelPerSecond)+' 0)');
 
         // figure out how many of the initial items are expired
         var expired = 0;
@@ -285,7 +295,21 @@ svg {
             this.dataSets[name].data.push(value);
             // append a chunk of svg path data to the list
             this.dataSets[name].pathData.push(((time-this.shift)*this.pixelPerSecond)+","+this.yScale(value));
-
+        }
+        if(this.autoscale) {
+            this.autoscaleYAxis();
+        }
+        this.plotLatestData();
+    }
+    plotLatestData() {
+        this.setLegendValues();
+        // the performance of this approach comes from not having to recompute
+        // the path data with every update.
+        if(this.now != undefined && this.shift != undefined ) {
+            this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(this.now-this.shift)*this.pixelPerSecond)+' 0)');
+        }
+        for (var name in this.dataSets)
+        {
             // convert the entire list into svg path data. just string concat
             this.dataSets[name].path.attr("d", "M "+(this.dataSets[name].pathData.join(" L ")));
         }
