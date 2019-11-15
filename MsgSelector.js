@@ -18,7 +18,7 @@ class MsgSelector extends HTMLElement {
         }
 
         let msgSelectorStyle = `margin-top: var(--msg-selector-margin-top, 20px);
-                                display: var(--msg-selector-display, flex);
+                                display: var(--msg-selector-display, block);
                                `;
 
         this.setAttribute('style', msgSelectorStyle);
@@ -40,12 +40,18 @@ class MsgSelector extends HTMLElement {
     }
 
     init() {
+        // ToDo: instead of creating dropdown list and then modifying them with
+        // a value and an event, add a perameter to createDropDownList() to take
+        // a pre-selected value, if it exists, and then dispatch an event to force
+        // the widget to load its contents
+
         this.createDropDownList(0, msgtools.msgs);
         // check if there's an attribute for selection default 'selection'
         // if it exists, then load that, otherwise start from top of dropdown
         if(this.selection != undefined) {
             const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
+                console.log(this.dropdowns);
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
@@ -58,7 +64,7 @@ class MsgSelector extends HTMLElement {
         let dropdownStyle = `font-size: var(--base-font-size, 18px);
                              margin: var(--input-margin, 0 15px 30px 0);
                              min-width: var(--input-width, 100px);
-                             background: var(--color-text, white);
+                             background: var(--background-color, white);
                              border-color: var(--color-text, black);
                              height: var(--input-height, 35px);
                             `;
@@ -116,8 +122,9 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `padding: var(--selector-display-padding, 0);
-                               width: var(--selector-display-width, 60%);
+        let msgSectionStyle = `display: block;
+                               padding: var(--selector-display-padding, 0);
+                               width: var(--selector-display-width, 100%);
                               `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
@@ -127,7 +134,7 @@ class MsgSelector extends HTMLElement {
             div.setAttribute('style', msgSectionStyle);
             this.dropdowns.push(div);
 
-            // used to dispatch an event that includes the user's current choice 
+            // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
                 detail: this.currentSettings()
             })
