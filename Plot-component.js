@@ -145,10 +145,7 @@ svg {
 
     initFromData()
     {
-        //let viewBox = "0 0 "+(this.width)+" "+(this.height);
         let viewBox = "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+this.topMarginForScaleLabel+this.xAxisLabelHeight)
-        //let viewBox = "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+50)
-        console.log(viewBox);
         this.svg.setAttribute("viewBox", viewBox);
 
         this.xScale = d3.scale.linear()
