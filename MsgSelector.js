@@ -36,6 +36,7 @@ class MsgSelector extends HTMLElement {
         }
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
+        this.handlerObj = undefined;
         msgtools.DelayedInit.add(this);
     }
 
@@ -132,8 +133,11 @@ class MsgSelector extends HTMLElement {
 
             let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = htmlStr;
-            div.setAttribute('style', msgSectionStyle);
+            div.style = msgSectionStyle;
             this.dropdowns.push(div);
+            // find the thing we just created.  if we don't do it like this,
+            // we get a 'div' and not an object of the proper type!
+            this.handlerObj = this.shadowRoot.querySelector('div > *');
 
             // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
@@ -144,17 +148,18 @@ class MsgSelector extends HTMLElement {
     }
 
     currentSettings(){
-        // look inside the div to see what the selection was and return the string
-        var handlerObj = this.shadowRoot.querySelector('div > *');
-        return handlerObj.currentSettings();
+        if(this.handlerObj != undefined) {
+            return this.handlerObj.currentSettings();
+        }
+        return '';
     }
     
     resize() {
-        // look inside the div to get the webcomponent.
-        // if it exists and has a 'resize', call resize()
-        var handlerObj = this.shadowRoot.querySelector('div > *');
-        if(handlerObj != undefined && handlerObj.resize != undefined) {
-            handlerObj.resize();
+        // call resize() if we have an object, and resize is not undefined
+        if(this.handlerObj != undefined) {
+            if(this.handlerObj.resize != undefined) {
+                this.handlerObj.resize();
+            }
         }
     }
 }
