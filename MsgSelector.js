@@ -51,7 +51,7 @@ class MsgSelector extends HTMLElement {
         if(this.selection != undefined) {
             const initialSelections = this.selection.split('.');
             for(let i = 0; i < initialSelections.length; i ++){
-                console.log(this.dropdowns);
+                // console.log(this.dropdowns);
                 this.dropdowns[i].value = initialSelections[i];
                 // force component to load the msg fields
                 this.dropdowns[i].dispatchEvent(new Event('change'));
@@ -125,6 +125,7 @@ class MsgSelector extends HTMLElement {
         let msgSectionStyle = `display: block;
                                padding: var(--selector-display-padding, 0);
                                width: var(--selector-display-width, 100%);
+                               height: var(--selector-display-height, 100%);
                               `;
         if(this.handler != undefined) {
             let div = createChildElement(this.shadow, 'div');
@@ -146,6 +147,15 @@ class MsgSelector extends HTMLElement {
         // look inside the div to see what the selection was and return the string
         var handlerObj = this.shadowRoot.querySelector('div > *');
         return handlerObj.currentSettings();
+    }
+    
+    resize() {
+        // look inside the div to get the webcomponent.
+        // if it exists and has a 'resize', call resize()
+        var handlerObj = this.shadowRoot.querySelector('div > *');
+        if(handlerObj != undefined && handlerObj.resize != undefined) {
+            handlerObj.resize();
+        }
     }
 }
 
