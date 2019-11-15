@@ -70,8 +70,14 @@ svg {
         this.timestamps = [];
 
         this.shift = null;
+        // this is for the width of the tick marks and labels on the y axis, on both sides of the plot
         this.yAxisLabelWidth = 50;
+        // this is for the height of the tick marks and labels on the x axis, on bottom of the plot
         this.xAxisLabelHeight = 20;
+        // this is to allow a label at the very top tick mark on the y axis to be totally visible.
+        // it should be 1/2 the height of text, because the label can be centered at the very
+        // top of the box (which would make half of it hang offscreen, if we didn't account for it).
+        this.topMarginForScaleLabel = 10;
 
         this.svg = document.createElementNS(svgns, 'svg');
         this.svg.setAttribute('class', 'chart');
@@ -134,7 +140,7 @@ svg {
 
     initFromData()
     {
-        this.svg.setAttribute("viewBox", "0 0 "+(this.width)+" "+(this.height));
+        this.svg.setAttribute("viewBox", "0 -"+(this.topMarginForScaleLabel)+" "+(this.width)+" "+(this.height+this.topMarginForScaleLabel));
 
         this.xScale = d3.scale.linear()
             .domain([-this.timeLimit, 0])
@@ -196,7 +202,7 @@ svg {
         }
     }
 
-    setValues(values) {
+    setLegendValues(values) {
         var i = 0;
         for (var name in this.labels) {
             var val = values[i];
@@ -224,9 +230,13 @@ svg {
            (newMin < this.yMin || newMin > this.yMin)) {
             this.yMax = newMax;
             this.yMin = newMin;
+            let domain = [this.yMin, this.yMax];
+            let range = [this.height-this.xAxisLabelHeight, 0]
             this.yScale = d3.scale.linear()
-                .domain([this.yMin, this.yMax])
-                .range([this.height-this.xAxisLabelHeight, 0])
+                .domain(domain)
+                .range(range)
+            console.log(domain);
+            console.log(range);
             this.emptySVG();
             this.initFromData();
         }
@@ -246,19 +256,12 @@ svg {
     }
 
     plot(time, newData) {
-        if(this.autoscale) {
-            this.autoscaleYAxis();
-        }
-        this.setValues(newData);
         //time /= 1000.0;
         this.now = time;
         // Add new values
         if(this.shift === null) {
             this.shift = time;
         }
-        // the performance of this approach comes from not having to recompute
-        // the path data with every update.
-        this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(time-this.shift)*this.pixelPerSecond)+' 0)');
 
         // figure out how many of the initial items are expired
         var expired = 0;
@@ -285,7 +288,17 @@ svg {
             this.dataSets[name].data.push(value);
             // append a chunk of svg path data to the list
             this.dataSets[name].pathData.push(((time-this.shift)*this.pixelPerSecond)+","+this.yScale(value));
-
+        }
+        
+        if(this.autoscale) {
+            this.autoscaleYAxis();
+        }
+        this.setLegendValues(newData);
+        // the performance of this approach comes from not having to recompute
+        // the path data with every update.
+        this.paths.attr('transform', 'translate('+(this.width-this.yAxisLabelWidth-(time-this.shift)*this.pixelPerSecond)+' 0)');
+        for (var name in this.dataSets)
+        {
             // convert the entire list into svg path data. just string concat
             this.dataSets[name].path.attr("d", "M "+(this.dataSets[name].pathData.join(" L ")));
         }
