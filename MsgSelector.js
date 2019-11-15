@@ -24,8 +24,8 @@ class MsgSelector extends HTMLElement {
         this.setAttribute('style', msgSelectorStyle);
 
         this.shadow = this.attachShadow({mode: 'open'});
-        if (handler !== undefined) {
-            this.handler = handler;
+        if (handlerClass !== undefined) {
+            this.handler = handlerClass;
         } else {
             this.handler = this.getAttribute('handler');
         }
