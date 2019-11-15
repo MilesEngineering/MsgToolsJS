@@ -24,6 +24,11 @@ class MsgSelector extends HTMLElement {
         this.setAttribute('style', msgSelectorStyle);
 
         this.shadow = this.attachShadow({mode: 'open'});
+        this.parentDiv = createChildElement(this.shadow, 'div');
+        this.parentDiv.style = 'display: flex; flex-flow: column; height: 100%;';
+        this.headerRow = createChildElement(this.parentDiv, 'div');
+        this.headerRow.style = 'flex: 0 1 auto;';
+
         if (handlerClass !== undefined) {
             this.handler = handlerClass;
         } else {
@@ -70,7 +75,7 @@ class MsgSelector extends HTMLElement {
                              height: var(--input-height, 35px);
                             `;
 
-        let dropdown = createChildElement(this.shadow, 'select');
+        let dropdown = createChildElement(this.headerRow, 'select');
         dropdown.setAttribute('style', dropdownStyle);
         dropdown.depth = depth;
         dropdown.onchange = this.ondropdownchange.bind(this);
@@ -111,7 +116,12 @@ class MsgSelector extends HTMLElement {
         // throw away everything after the dropdown that just had something selected
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
-            this.shadow.removeChild(item);
+            if(this.headerRow.contains(item)){
+                this.headerRow.removeChild(item);
+            }
+            if(this.parentDiv.contains(item)){
+                this.parentDiv.removeChild(item);
+            }
             //TODO Do I need to remove the element from the document, or just from its parent?
             //document.removeElement(item);
         }
@@ -123,22 +133,22 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
-        let msgSectionStyle = `display: block;
+        let msgSectionStyle = `flex: 1 1 auto;
                                padding: var(--selector-display-padding, 0);
-                               width: var(--selector-display-width, 100%);
-                               height: var(--selector-display-height, 100%);
-                              `;
+                               `;
         if(this.handler != undefined) {
-            let div = createChildElement(this.shadow, 'div');
+            let div = createChildElement(this.parentDiv, 'div');
 
             let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = htmlStr;
             div.style = msgSectionStyle;
             this.dropdowns.push(div);
-            // find the thing we just created.  if we don't do it like this,
-            // we get a 'div' and not an object of the proper type!
-            this.handlerObj = this.shadowRoot.querySelector('div > *');
+            this.handlerObj = div.firstElementChild;
 
+            let footer = createChildElement(this.parentDiv, 'div');
+            footer.style = 'flex: 0 1 40px;';
+            this.dropdowns.push(footer);
+            
             // used to dispatch an event that includes the user's current choice
             var event = new CustomEvent('settingsChanged', {
                 detail: this.currentSettings()
