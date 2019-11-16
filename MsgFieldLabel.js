@@ -72,7 +72,29 @@ class MsgElement extends HTMLElement {
     }
 
     currentSettings() {
-        return this.msgName;
+        var settings = {selection : this.msgName};
+        if(this.fieldNames != undefined) {
+            settings.fieldsDisplayed = {};
+            for(var i=0; i<this.fieldNames.length; i++) {
+                let fieldName = this.fieldNames[i];
+                settings.fieldsDisplayed[fieldName] = {displayed : this.fields[i].checkbox.checked};
+            }
+        }
+        return settings;
+    }
+    updateSettings(settings) {
+        if('fieldsDisplayed' in settings) {
+            Object.keys(settings.fieldsDisplayed).forEach(function (fieldName) {
+                var displayed = settings.fieldsDisplayed[fieldName].displayed;
+            })
+        }
+    }
+    settingsChanged() {
+        // used to dispatch an event that includes the user's current choice
+        var event = new CustomEvent('settingsChanged', {
+            detail: this.currentSettings()
+        })
+        this.dispatchEvent(event);
     }
     // implement resize, so we support the interface required by things that
     // go in MsgSelector
@@ -137,6 +159,28 @@ class MsgLabels extends MsgElement {
             }
         }
     }
+    setEditable(editable) {
+        let checkboxDisplay = (editable) ? "" : "none";
+        for(var i=0; i<this.fields.length; i++) {
+            var fieldDisplay = "";
+            if(editable) {
+                fieldDisplay = "";
+            } else {
+                if(this.fields[i].checkbox.checked) {
+                    fieldDisplay = "";
+                } else {
+                    fieldDisplay = "none";
+                }
+            }
+            this.fields[i].style.display = fieldDisplay;
+            if(this.fields[i].associatedWidget != undefined) {
+                this.fields[i].associatedWidget.style.display = fieldDisplay;
+            }
+            if(this.fields[i].checkbox != undefined) {
+                this.fields[i].checkbox.style.display = checkboxDisplay;
+            }
+        }
+    }
 }
 
 /*
@@ -148,27 +192,45 @@ class MsgLabelsRow extends MsgLabels {
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
             var td = createChildElement(tr, 'td');
-            tr.setAttribute('style', trStyle);
+            //tr.setAttribute('style', trStyle);
             td.setAttribute('colspan', this.fieldInfos.length);
             td.textContent = this.msgName;
         }
         if(this.showHeader) {
-            var tr = createChildElement(this.table, 'tr');
-            for(var i=0; i<this.fieldNames.length; i++) {
-                var td = createChildElement(tr, 'td');
-                td.textContent = this.fieldNames[i];
-            }
+            var headerRow = createChildElement(this.table, 'tr');
         }
         var tr = createChildElement(this.table, 'tr');
+        this.checkboxRow = createChildElement(this.table, 'tr');
         for(var i=0; i<this.fieldInfos.length; i++) {
             var td = createChildElement(tr, 'td');
             td.textContent = '';
             td.baseStyle = 'height: 1em; border: 1px gray solid;';
             td.setAttribute('style', td.baseStyle);
+
+            if(this.showHeader) {
+                var headerCell = createChildElement(headerRow, 'td');
+                headerCell.textContent = this.fieldNames[i];
+                td.associatedWidget = headerCell;
+            }
+            
+            var checkbox_td = createChildElement(this.checkboxRow, 'td');
+            var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('checked', 'checked');
+            checkbox.onclick = this.settingsChanged.bind(this);
+            td.checkbox = checkbox;
+
             this.fields.push(td);
         }
     }
-
+    setEditable(editable) {
+        if(editable) {
+            this.checkboxRow.style.display = "";
+        } else {
+            this.checkboxRow.style.display = "none";
+        }
+        MsgLabels.prototype.setEditable.call(this, editable);
+    }
 }
 
 /*
@@ -205,6 +267,15 @@ class MsgLabelsColumn extends MsgLabels {
                           `
             td.textContent = '';
             td.setAttribute('style', tdStyle);
+
+            var checkbox_td = createChildElement(tr, 'td');
+            var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('checked', 'checked');
+            checkbox.onclick = this.settingsChanged.bind(this);
+            td.checkbox = checkbox;
+            td.associatedWidget = tr;
+
             this.fields.push(td);
         }
     }

@@ -8,8 +8,14 @@ function createChildElement(parent, childName) {
     return child;
 }
 
+let headerStyle = `font-size: var(--base-font-size, 18px);
+                     margin: var(--input-margin, 0 15px 15px 0);
+                     border-color: var(--color-text, black);
+                     height: var(--input-height, 35px);
+                    `;
+
 class MsgSelector extends HTMLElement {
-    constructor(handlerClass = undefined, selection = undefined, filter = undefined) {
+    constructor(handlerClass, selection, filter, settings) {
         super();
         if (filter !== undefined) {
             this.filter = filter;
@@ -27,7 +33,13 @@ class MsgSelector extends HTMLElement {
         this.parentDiv.style = 'display: flex; flex-flow: column; height: 100%;';
         this.headerRow = createChildElement(this.parentDiv, 'div');
         this.headerRow.style = 'flex: 0 1 auto;';
-
+        this.msgLabel = createChildElement(this.headerRow, 'span');
+        this.msgLabel.setAttribute('style', headerStyle);
+        this.msgLabel.style.display = "none";
+        this.msgLabelEditBox = createChildElement(this.headerRow, 'input');
+        this.msgLabelEditBox.setAttribute('style', headerStyle);
+        this.msgLabelEditBox.onchange = this.msgLabelChanged.bind(this);
+        
         if (handlerClass !== undefined) {
             this.handler = handlerClass;
         } else {
@@ -37,6 +49,11 @@ class MsgSelector extends HTMLElement {
             this.selection = selection;
         } else {
             this.selection = this.getAttribute('selection');
+        }
+        if (settings !== undefined) {
+            this.settings = settings;
+        } else {
+            this.settings = {};
         }
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
@@ -61,17 +78,29 @@ class MsgSelector extends HTMLElement {
                 this.dropdowns[i].dispatchEvent(new Event('change'));
             }
         }
+        if('msgLabel' in this.settings) {
+            this.msgLabelEditBox.value = this.settings.msgLabel;
+            this.msgLabel.textContent = this.settings.msgLabel;
+            
+            // this is ugly, but force a settingsChanged() here, because
+            // we need to have the setting for msgLabel be re-done
+            // *after* we set the text in the edit box.  The act of creating
+            // the handler object already triggers a settingsChanged(),
+            // because it does it for the new selection, and it has the
+            // WRONG msgLabel because it happens before we set it
+            // just above.  We do want the user making a new selection
+            // to normally update the setting, because when they change
+            // the selection, it needs to reinit it to the message name.
+            this.settingsChanged();
+        }
     }
 
     createDropDownList(depth, msgtree) {
 
-        let dropdownStyle = `font-size: var(--base-font-size, 18px);
-                             margin: var(--input-margin, 0 15px 15px 0);
+        let dropdownStyle = headerStyle + `
                              min-width: var(--input-width, 100px);
                              background: var(--background-color, white);
-                             border-color: var(--color-text, black);
-                             height: var(--input-height, 35px);
-                            `;
+                             `;
 
         let dropdown = createChildElement(this.headerRow, 'select');
         dropdown.setAttribute('style', dropdownStyle);
@@ -129,13 +158,15 @@ class MsgSelector extends HTMLElement {
         }
     }
     handleMsgClick(msgclass) {
+        this.msgLabelEditBox.value = msgclass.prototype.MSG_NAME;
+        this.msgLabel.textContent = msgclass.prototype.MSG_NAME;
         let msgSectionStyle = `flex: 1 1 auto; border:
                                padding: var(--selector-display-padding, 0);
                                `;
         if(this.handler != undefined) {
             let div = createChildElement(this.parentDiv, 'div');
 
-            let htmlStr = '<'+this.handler+" showMsgName=true msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
+            let htmlStr = '<'+this.handler+" showMsgName=false msgName='"+msgclass.prototype.MSG_NAME+"'></"+this.handler+'>';
             div.innerHTML = htmlStr;
             div.style = msgSectionStyle;
             this.dropdowns.push(div);
@@ -143,20 +174,30 @@ class MsgSelector extends HTMLElement {
             // not sure why this is necessary, but without it, plots see their parent's
             // getBoundingClientRect() as 150 pixels tall.
             this.handlerObj.resize();
+            this.handlerObj.updateSettings(this.settings);
+            this.handlerObj.addEventListener('settingsChanged', this.settingsChanged.bind(this));
 
-            // used to dispatch an event that includes the user's current choice
-            var event = new CustomEvent('settingsChanged', {
-                detail: this.currentSettings()
-            })
-            this.dispatchEvent(event);
+            this.settingsChanged();
         }
+    }
+    
+    settingsChanged() {
+        var settings = this.currentSettings();
+        //console.log(settings);
+        // used to dispatch an event that includes the user's current choice
+        var event = new CustomEvent('settingsChanged', {
+            detail: settings
+        })
+        this.dispatchEvent(event);
     }
 
     currentSettings(){
+        var settings = {msgLabel : this.msgLabelEditBox.value };
         if(this.handlerObj != undefined) {
-            return this.handlerObj.currentSettings();
+            settings = {...this.handlerObj.currentSettings(), ...settings};
         }
-        return '';
+        console.log(settings);
+        return settings;
     }
     
     resize(width, height) {
@@ -167,6 +208,24 @@ class MsgSelector extends HTMLElement {
             let left = this.parentDiv.offsetLeft+this.handlerObj.offsetLeft*2;
             this.handlerObj.resize(width-left, height-top);
         }
+    }
+
+    setEditable(editable) {
+        let controlDisplay = (editable) ? "" : "none";
+        let labelDisplay = (editable) ? "none" : "";
+        this.msgLabel.style.display = labelDisplay;
+        this.msgLabelEditBox.style.display = controlDisplay;
+        for(var i=0; i<this.dropdowns.length-1; i++) {
+            this.dropdowns[i].style.display = controlDisplay;
+        }
+        if(this.handlerObj != undefined) {
+            this.handlerObj.setEditable(editable);
+        }
+    }
+    
+    msgLabelChanged() {
+        this.msgLabel.textContent = this.msgLabelEditBox.value;
+        this.settingsChanged();
     }
 }
 

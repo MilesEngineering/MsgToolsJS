@@ -145,9 +145,23 @@ if (typeof MsgPlot !== "undefined") {
     }
 
     currentSettings() {
-        return this.msgName;
+        return {selection : this.msgName};
+    }
+    updateSettings(settings) {
+        if('fieldsDisplayed' in settings) {
+            Object.keys(settings.fieldsDisplayed).forEach(function (fieldName) {
+                var displayed = settings.fieldsDisplayed[fieldName];
+                console.log(fieldName + " = " + displayed);
+            })
+        }
     }
 
+    setEditable(editable) {
+        console.log('setEditable('+editable+')');
+        if(editable) {
+        } else {
+        }
+    }
 }
 
 customElements.define('msgtools-msgplot', MsgPlot);
