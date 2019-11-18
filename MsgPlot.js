@@ -6,9 +6,11 @@ if (typeof MsgPlot !== "undefined") {
 } else {
 
  class MsgPlot extends MsgBasePlot {
-    constructor() {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
         super();
-        this.msgName = this.getAttribute('msgName');
+        this.msgName = (msgName != undefined) ? msgName : this.getAttribute('msgName');
+        this.settings = settings;
+        this.editable = editable;
         msgtools.DelayedInit.add(this);
     }
     init() {
@@ -165,5 +167,6 @@ if (typeof MsgPlot !== "undefined") {
 }
 
 customElements.define('msgtools-msgplot', MsgPlot);
+window.MsgPlot = MsgPlot;
 
 }

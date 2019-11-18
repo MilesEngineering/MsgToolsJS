@@ -13,12 +13,22 @@ function createChildElement(parent, childName) {
  * Creates a widget based on definition of a message.
  */
 class MsgElement extends HTMLElement {
-    constructor() {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
         super();
-        this.msgName = this.getAttribute('msgName');
-        this.showHeader = this.hasAttribute('showHeader') ? this.getAttribute('showHeader').toLowerCase() === 'true' : true;
-        this.showMsgName = this.hasAttribute('showMsgName') ? this.getAttribute('showMsgName').toLowerCase() === 'true' : false;
+        this.msgName = (msgName != undefined) ? msgName : this.getAttribute('msgName');
+        this.settings = settings;
+        if(showHeader != undefined) {
+            this.showHeader = showHeader;
+        } else {
+            this.showHeader = this.hasAttribute('showHeader') ? this.getAttribute('showHeader').toLowerCase() === 'true' : true;
+        }
+        if(showMsgName != undefined) {
+            this.showMsgName = showMsgName;
+        } else {
+            this.showMsgName = this.hasAttribute('showMsgName') ? this.getAttribute('showMsgName').toLowerCase() === 'true' : false;
+        }
         this.shadow = this.attachShadow({mode: 'open'});
+        this.editable = editable;
         msgtools.DelayedInit.add(this);
     }
     init() {
@@ -69,6 +79,27 @@ class MsgElement extends HTMLElement {
             //this.table.setAttribute('border', 1);
         }
         this.createFields();
+
+        if('fieldsDisplayed' in this.settings) {
+            let fieldNames = Object.keys(this.settings.fieldsDisplayed);
+            for(var i=0; i<fieldNames.length; i++) {
+                let fieldName = fieldNames[i];
+                let fieldSettings = this.settings.fieldsDisplayed[fieldName];
+                let displayed = fieldSettings.displayed;
+                this.enableField(fieldName, displayed);
+            }
+        }
+        this.setEditable(this.editable);
+    }
+    enableField(fieldName, enable) {
+        if(this.fieldNames != undefined) {
+            for(var i=0; i<this.fieldNames.length; i++) {
+                if(fieldName == this.fieldNames[i]) {
+                    this.fields[i].checkbox.checked = enable;
+                    return;
+                }
+            }
+        }
     }
 
     currentSettings() {
@@ -81,13 +112,6 @@ class MsgElement extends HTMLElement {
             }
         }
         return settings;
-    }
-    updateSettings(settings) {
-        if('fieldsDisplayed' in settings) {
-            Object.keys(settings.fieldsDisplayed).forEach(function (fieldName) {
-                var displayed = settings.fieldsDisplayed[fieldName].displayed;
-            })
-        }
     }
     settingsChanged() {
         // used to dispatch an event that includes the user's current choice
@@ -105,9 +129,9 @@ class MsgElement extends HTMLElement {
 /*
  * Displays field values for a message.
  */
-class MsgLabels extends MsgElement {
-    constructor() {
-        super();
+class MsgRx extends MsgElement {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
 
         // used for coloring display according to age.
         if(this.hasAttribute('maxAge')) {
@@ -160,6 +184,9 @@ class MsgLabels extends MsgElement {
         }
     }
     setEditable(editable) {
+        if(this.fields == undefined) {
+            return;
+        }
         let checkboxDisplay = (editable) ? "" : "none";
         for(var i=0; i<this.fields.length; i++) {
             var fieldDisplay = "";
@@ -186,7 +213,10 @@ class MsgLabels extends MsgElement {
 /*
  * Displays as row
  */
-class MsgLabelsRow extends MsgLabels {
+class MsgRxRow extends MsgRx {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
+    }
     createFields() {
 
         if(this.showMsgName) {
@@ -224,19 +254,25 @@ class MsgLabelsRow extends MsgLabels {
         }
     }
     setEditable(editable) {
+        if(this.fields == undefined) {
+            return;
+        }
         if(editable) {
             this.checkboxRow.style.display = "";
         } else {
             this.checkboxRow.style.display = "none";
         }
-        MsgLabels.prototype.setEditable.call(this, editable);
+        MsgRx.prototype.setEditable.call(this, editable);
     }
 }
 
 /*
  * Displays as column.
  */
-class MsgLabelsColumn extends MsgLabels {
+class MsgRxColumn extends MsgRx {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
+    }
     createFields() {
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
@@ -284,9 +320,9 @@ class MsgLabelsColumn extends MsgLabels {
 /*
  * Edit field values for a message.
  */
-class MsgEdit extends MsgElement {
-    constructor() {
-        super();
+class MsgTx extends MsgElement {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
     }
     init() {
         super.init();
@@ -340,12 +376,40 @@ class MsgEdit extends MsgElement {
         sendBtn.setAttribute('style', btnStyle);
         return sendBtn;
     }
+    setEditable(editable) {
+        if(this.fields == undefined) {
+            return;
+        }
+        let checkboxDisplay = (editable) ? "" : "none";
+        for(var i=0; i<this.fields.length; i++) {
+            var fieldDisplay = "";
+            if(editable) {
+                fieldDisplay = "";
+            } else {
+                if(this.fields[i].checkbox.checked) {
+                    fieldDisplay = "";
+                } else {
+                    fieldDisplay = "none";
+                }
+            }
+            this.fields[i].style.display = fieldDisplay;
+            if(this.fields[i].associatedWidget != undefined) {
+                this.fields[i].associatedWidget.style.display = fieldDisplay;
+            }
+            if(this.fields[i].checkbox != undefined) {
+                this.fields[i].checkbox.style.display = checkboxDisplay;
+            }
+        }
+    }
 }
 
 /*
  * Edit field values for a message in a row.
  */
-class MsgEditRow extends MsgEdit {
+class MsgTxRow extends MsgTx {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
+    }
     createFields() {
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
@@ -354,31 +418,56 @@ class MsgEditRow extends MsgEdit {
             td.textContent = this.msgName;
         }
         if(this.showHeader) {
-            var tr = createChildElement(this.table, 'tr');
-            for(var i=0; i<this.fieldNames.length; i++) {
-                var td = createChildElement(tr, 'td');
-                td.textContent = this.fieldNames[i];
-            }
+            var headerRow = createChildElement(this.table, 'tr');
         }
         var tr = createChildElement(this.table, 'tr');
+        this.checkboxRow = createChildElement(this.table, 'tr');
         for(var i=0; i<this.fieldInfos.length; i++) {
             var fieldInfo = this.fieldInfos[i];
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
-            this.fields.push(editWidget);
             td.appendChild(editWidget);
+
+            if(this.showHeader) {
+                var headerCell = createChildElement(headerRow, 'td');
+                headerCell.textContent = this.fieldNames[i];
+                editWidget.associatedWidget = headerCell;
+            }
+            
+            var checkbox_td = createChildElement(this.checkboxRow, 'td');
+            var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('checked', 'checked');
+            checkbox.onclick = this.settingsChanged.bind(this);
+            editWidget.checkbox = checkbox;
+
+            this.fields.push(editWidget);
         }
         var tr = createChildElement(this.table, 'tr');
         var td = createChildElement(tr, 'td');
         td.setAttribute('colspan', this.fieldInfos.length);
         td.appendChild(this.sendButton());
     }
+    setEditable(editable) {
+        if(this.fields == undefined) {
+            return;
+        }
+        if(editable) {
+            this.checkboxRow.style.display = "";
+        } else {
+            this.checkboxRow.style.display = "none";
+        }
+        MsgTx.prototype.setEditable.call(this, editable);
+    }
 }
 
 /*
  * Edit field values for a message in a column.
  */
-class MsgEditColumn extends MsgEdit {
+class MsgTxColumn extends MsgTx {
+    constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
+        super(msgName, settings, showMsgName, showHeader, editable);
+    }
     createFields() {
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
@@ -395,8 +484,17 @@ class MsgEditColumn extends MsgEdit {
             }
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
-            this.fields.push(editWidget);
             td.appendChild(editWidget);
+            
+            var checkbox_td = createChildElement(tr, 'td');
+            var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('checked', 'checked');
+            checkbox.onclick = this.settingsChanged.bind(this);
+            editWidget.checkbox = checkbox;
+            editWidget.associatedWidget = tr;
+
+            this.fields.push(editWidget);
         }
         var tr = createChildElement(this.table, 'tr');
         var td = createChildElement(tr, 'td');
@@ -411,8 +509,13 @@ class MsgEditColumn extends MsgEdit {
 // tag have been defined, so that our calls to getAttribute will succeed.
 // (Also after any remaining dependencies are loaded.)
 // Best plan is just to import this whole file at the end of your HTML.
-customElements.define('msgtools-msgrxrow', MsgLabelsRow);
-customElements.define('msgtools-msgrx', MsgLabelsColumn);
-customElements.define('msgtools-msgtxrow', MsgEditRow);
-customElements.define('msgtools-msgtx', MsgEditColumn);
+customElements.define('msgtools-msgrxrow', MsgRxRow);
+customElements.define('msgtools-msgrx', MsgRxColumn);
+customElements.define('msgtools-msgtxrow', MsgTxRow);
+customElements.define('msgtools-msgtx', MsgTxColumn);
+
+window.MsgRxRow = MsgRxRow;
+window.MsgRxColumn = MsgRxColumn;
+window.MsgTxRow = MsgTxRow;
+window.MsgTxColumn = MsgTxColumn;
 }
