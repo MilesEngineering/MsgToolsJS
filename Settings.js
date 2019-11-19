@@ -26,10 +26,38 @@ class SettingsMenu extends HTMLElement {
         this.chooseSettingsDropdown = createChildElement(this.shadow, 'select');
         this.chooseSettingsDropdown.onchange = this.chooseSettings.bind(this);
         this.processSettingsChoices(defaultFileChoice);
+
+        // save as button and text entry
+        var newButton = createChildElement(this.shadow, 'button');
+        this.newFilename = createChildElement(this.shadow, 'input');
+        newButton.textContent = 'Save As -> ';
+        newButton.onclick = this.newSettings.bind(this);
+        
+        // delete button
+        var deleteButton = createChildElement(this.shadow, 'button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = this.deleteSettings.bind(this);
+        
     };
     saveSettings() {
         var event = new CustomEvent('save', {
             detail: this.settingsName
+        });
+        this.dispatchEvent(event);
+    }
+    deleteSettings() {
+        var event = new CustomEvent('delete', {
+            detail: this.settingsName
+        });
+        this.dispatchEvent(event);
+    }
+    newSettings() {
+        var event = new CustomEvent('save', {
+            detail: this.newFilename.value
+        });
+        this.dispatchEvent(event);
+        var event = new CustomEvent('load', {
+            detail: this.newFilename.value
         });
         this.dispatchEvent(event);
     }
@@ -46,8 +74,8 @@ class SettingsMenu extends HTMLElement {
     processSettingsChoices(defaultFileChoice) {
         function flatten(elem, prefix) {
             var elem_name = elem.name;
-            if(prefix != undefined) {
-                elem_name = prefix + "." + elem_name;
+            if(prefix != undefined && prefix != "") {
+                elem_name = prefix + "/" + elem_name;
             }
             if(elem.entries == undefined) {
                 return elem_name;
