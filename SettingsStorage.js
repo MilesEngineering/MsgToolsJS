@@ -46,7 +46,9 @@ class SettingsStorage {
         for(var i=0; i<children.length; i++) {
             var child = children[i];
             if(child.type == 'file') {
-                files.push({name: child.name});
+                if(!child.name.startsWith('.')) {
+                    files.push({name: child.name});
+                }
             } else if (child.type == 'dir') {
                 subdirs.push(this.list(child.name));
             }
