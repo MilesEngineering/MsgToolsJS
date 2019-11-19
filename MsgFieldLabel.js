@@ -31,6 +31,9 @@ class MsgElement extends HTMLElement {
         this.editable = editable;
         msgtools.DelayedInit.add(this);
     }
+    destroy() {
+        msgtools.DelayedInit.remove(this);
+    }
     init() {
         this.msgClass = msgtools.findMessageByName(this.msgName);
         if(typeof this.msgClass == "undefined") {
@@ -145,8 +148,19 @@ class MsgRx extends MsgElement {
     init() {
         super.init();
 
+        // set a bound callback once, because it's used in dispatch.register and also dispatch.remove,
+        // and it needs to be the same pointer both times or it won't get removed.
+        this.boundCallback = this.processMsg.bind(this);
+
         // Register to receive our messages so we can display fields.
-        msgtools.MessageClient.dispatch.register(this.msgClass.prototype.MSG_ID, this.processMsg.bind(this));
+        msgtools.MessageClient.dispatch.register(this.msgClass.prototype.MSG_ID, this.boundCallback);
+    }
+    destroy() {
+        if(this.boundCallback) {
+            msgtools.MessageClient.dispatch.remove(this.msgClass.prototype.MSG_ID, this.boundCallback);
+        }
+        // call base-class function
+        MsgElement.prototype.destroy.call(this);
     }
     processMsg(msg) {
         for(var i=0; i<this.fieldInfos.length; i++) {

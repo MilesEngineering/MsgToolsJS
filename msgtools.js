@@ -198,6 +198,12 @@ if (typeof msgtools !== "undefined") {
                 DelayedInit.widgets.push(w);
             }
         }
+        static remove(w) {
+            var index = DelayedInit.widgets.indexOf(w);
+            if(index > -1) {
+                DelayedInit.widgets.splice(index,1);
+            }
+        }
         static init() {
             while(DelayedInit.widgets.length > 0) {
                 DelayedInit.widgets.pop().init();
@@ -233,9 +239,10 @@ if (typeof msgtools !== "undefined") {
         }
 
         remove(id, handler) {
-            let listeners = this.m_listeners[id];
-            if (listeners !== undefined) {
-                listeners.delete(handler);
+            var listeners = this.m_listeners[id];
+            var index = listeners.indexOf(handler);
+            if(index > -1) {
+                listeners.splice(index,1);
             }
         }
         

@@ -57,6 +57,10 @@ class MsgTree extends HTMLElement {
         r(msgtools.msgs, this.shadow, this.filter, this.ontreeclick.bind(this), 0, displayDepth);
         this.msgBody = createChildElement(this.shadow, 'div');
     }
+    destroy() {
+        msgtools.DelayedInit.remove(this);
+        //TODO need to destroy handlerobj!
+    }
     ontreeclick(e) {
         e.stopPropagation();
         let node = e.target;
@@ -78,10 +82,13 @@ class MsgTree extends HTMLElement {
         }
     }
     handleMsgClick(msgname) {
+        //TODO need to destroy old handlerobj!
+        
         // console.log('click on ' + msgname);
         let msgclass = msgtools.findMessageByName(msgname);
         //console.log(msgclass);
         if(this.handler != undefined) {
+            //TODO needd to create handler by calling constructor, and save a pointer to it!
             let h = '<'+this.handler+" showMsgName=true msgName='"+msgname+"'></"+this.handler+'>';
             this.msgBody.innerHTML = h;
         }

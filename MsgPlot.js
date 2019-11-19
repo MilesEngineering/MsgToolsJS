@@ -11,6 +11,7 @@ if (typeof MsgPlot !== "undefined") {
         this.msgName = (msgName != undefined) ? msgName : this.getAttribute('msgName');
         this.settings = settings;
         this.editable = editable;
+
         msgtools.DelayedInit.add(this);
     }
     init() {
@@ -119,8 +120,19 @@ if (typeof MsgPlot !== "undefined") {
             }
         }
 
+        // set a bound callback once, because it's used in dispatch.register and also dispatch.remove,
+        // and it needs to be the same pointer both times or it won't get removed.
+        this.boundCallback = this.plot.bind(this);
+
         // Register to receive our messages so we can plot fields from them.
-        msgtools.MessageClient.dispatch.register(this.msgClass.prototype.MSG_ID, this.plot.bind(this));
+        msgtools.MessageClient.dispatch.register(this.msgClass.prototype.MSG_ID, this.boundCallback);
+    }
+
+    destroy() {
+        msgtools.DelayedInit.remove(this);
+        if(this.boundCallback) {
+            msgtools.MessageClient.dispatch.remove(this.msgClass.prototype.MSG_ID, this.boundCallback);
+        }
     }
 
     plot(msg) {

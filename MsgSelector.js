@@ -111,6 +111,17 @@ class MsgSelector extends HTMLElement {
             this.itemSelectionChanged(0, true);
         }
     }
+    
+    destroy() {
+        msgtools.DelayedInit.remove(this);
+        this.destroyHandler();
+    }
+    
+    destroyHandler() {
+        if(this.handlerObj) {
+            this.handlerObj.destroy();
+        }
+    }
 
     createDropDownList(depth, msgtree, user_activated) {
 
@@ -159,6 +170,10 @@ class MsgSelector extends HTMLElement {
         // throw away everything after the dropdown that just had something selected
         while(this.dropdowns.length > depth+1) {
             let item = this.dropdowns.pop();
+            // call destroy, if it exists on anything we're throwing away.
+            if(item.destroy != undefined) {
+                item.destroy()
+            }
             if(this.headerRow.contains(item)){
                 this.headerRow.removeChild(item);
             }
@@ -168,12 +183,16 @@ class MsgSelector extends HTMLElement {
         }
         // create a new thing after us: either another dropdown, or a message
         if(node.prototype != undefined) {
-            this.handleMsgClick(node, user_activated);
+            this.createHandlerObj(node, user_activated);
         } else {
             this.createDropDownList(depth+1, node, user_activated);
         }
     }
-    handleMsgClick(msgclass, user_activated) {
+    createHandlerObj(msgclass, user_activated) {
+        // destroy the old handler
+        this.destroyHandler();
+        
+        // set up labels, with either existing setting, or default value.
         if(user_activated || !('msgLabel' in this.settings)) {
             this.msgLabelEditBox.value = msgclass.prototype.MSG_NAME;
             this.msgLabel.textContent = msgclass.prototype.MSG_NAME;
@@ -181,12 +200,11 @@ class MsgSelector extends HTMLElement {
             this.msgLabelEditBox.value = this.settings.msgLabel;
             this.msgLabel.textContent = this.settings.msgLabel;
         }
-        let msgSectionStyle = `flex: 1 1 auto; border:
-                               padding: var(--selector-display-padding, 0);
-                               `;
         if(this.handler != undefined) {
             this.handlerObj = new this.handler(msgclass.prototype.MSG_NAME, this.settings, false, true, this.editable);
-            this.handlerObj.style = msgSectionStyle;
+            this.handlerObj.style = `flex: 1 1 auto; border:
+                                     padding: var(--selector-display-padding, 0);
+                                    `;
             this.parentDiv.appendChild(this.handlerObj);
             this.dropdowns.push(this.handlerObj);
             // not sure why this is necessary, but without it, plots see their parent's
