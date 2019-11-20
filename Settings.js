@@ -1,43 +1,34 @@
-function createChildElement(parent, childName) {
-    child = document.createElement(childName);
-    parent.appendChild(child);
-    return child;
-}
-
 // UI settings for multiple filenames
-class SettingsMenu extends HTMLElement {
+class SettingsGui extends HTMLElement {
     constructor(defaultFileChoice, getFileChoices) {
         super();
-        
-        this.shadow = this.attachShadow({mode: 'open'});
-        
         // currently selected settings
         this.settingsName = undefined;
-        
+
         // save button
-        this.saveButton = createChildElement(this.shadow, 'button');
+        this.saveButton = document.createElement('button');
         this.saveButton.textContent = 'Save';
         this.saveButton.onclick = this.saveSettings.bind(this);
-        
+
         // callback to get list of file choices
         this.getFileChoices = getFileChoices;
 
         // add a way to pick a filename from a list of filenames
-        this.chooseSettingsDropdown = createChildElement(this.shadow, 'select');
+        this.chooseSettingsDropdown = document.createElement('select');
         this.chooseSettingsDropdown.onchange = this.chooseSettings.bind(this);
         this.processSettingsChoices(defaultFileChoice);
 
         // save as button and text entry
-        var newButton = createChildElement(this.shadow, 'button');
-        this.newFilename = createChildElement(this.shadow, 'input');
-        newButton.textContent = 'Save As -> ';
-        newButton.onclick = this.newSettings.bind(this);
-        
+        this.saveAsButton = document.createElement('button');
+        this.newFilename = document.createElement('input');
+        this.saveAsButton.textContent = 'Save As -> ';
+        this.saveAsButton.onclick = this.newSettings.bind(this);
+
         // delete button
-        var deleteButton = createChildElement(this.shadow, 'button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.onclick = this.deleteSettings.bind(this);
-        
+        this.deleteButton = document.createElement('button');
+        this.deleteButton.textContent = 'Delete';
+        this.deleteButton.onclick = this.deleteSettings.bind(this);
+
     };
     saveSettings() {
         var event = new CustomEvent('save', {
@@ -103,4 +94,4 @@ class SettingsMenu extends HTMLElement {
     }
 }
 
-customElements.define('msgtools-settingsmenu', SettingsMenu);
+customElements.define('msgtools-settingsgui', SettingsGui);
