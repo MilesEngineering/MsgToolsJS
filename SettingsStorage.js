@@ -1,5 +1,5 @@
 class SettingsStorage {
-    constructor(rootpath="http://127.0.0.1:8000/", configPath='html/configs/') {
+    constructor(rootpath, configPath='html/configs/') {
         this.configPath = configPath;
         this.webdavfs = WebDAV.Fs(rootpath)
     }
