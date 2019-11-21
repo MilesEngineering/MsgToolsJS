@@ -23,6 +23,7 @@ class SettingsGui extends HTMLElement {
         // save as button and text entry
         this.newFilename = document.createElement('input');
         this.newFilename.classList = 'input-save-as';
+
         this.saveAsButton = document.createElement('button');
         this.saveAsButton.textContent = 'Save new config';
         this.saveAsButton.classList = 'btn btn-save-as btn-primary';
@@ -33,6 +34,9 @@ class SettingsGui extends HTMLElement {
         this.deleteButton.classList = 'btn btn-delete btn-warning';
         this.deleteButton.textContent = 'Delete config';
         this.deleteButton.onclick = this.deleteSettings.bind(this);
+
+        this.currentConfigHeader = document.createElement('span');
+        this.currentConfigHeader.textContent = this.settingsName;
 
     };
     saveSettings() {
@@ -55,7 +59,11 @@ class SettingsGui extends HTMLElement {
         var event = new CustomEvent('load', {
             detail: this.newFilename.value
         });
-        this.dispatchEvent(event);
+        if(event.detail == ""){
+            alert('You must enter a name to save a configuration')
+        } else {
+            this.dispatchEvent(event);
+        }
     }
     stateClean(clean) {
         this.saveButton.disabled = clean;
