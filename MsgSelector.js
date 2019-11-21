@@ -24,21 +24,24 @@ function createChildElement(parent, childName) {
 }
 
 let headerStyle = `font-size: var(--base-font-size, 18px);
-                   margin: var(--input-margin, 0 15px 15px 0);
+                   margin: var(--input-margin, 0 15px 0 0);
                    border-color: var(--color-text, black);
                    height: var(--input-height, 35px);
                   `;
 
+let spanStyle = `line-height: var(--input-height, 35px);`
 
-let lockButtonStyle = `width: 15px;
-                       height: 15px;
+let lockButtonStyle = `width: 18px;
+                       height: 18px;
                        margin-right: 15px;
                        padding: 1px;
+                       border: none;
+
                       `;
-let lockButtoneditableStyle = `background: var(--editable-lock-btn-background, no-repeat center/100% url('/html/msgtools/style/icon-unlock.png'));
-                              `;
-let lockButtonlockedStyle = `background: var(--locked-lock-btn-background, no-repeat center/100% url('/html/msgtools/style/icon-lock.png'));
-                            `;
+let lockButtoneditableStyle = `background: var(--editable-lock-btn-background,
+                               no-repeat center/100% url('/html/msgtools/style/icon-unlock.png'));`;
+let lockButtonlockedStyle = `background: var(--locked-lock-btn-background,
+                             no-repeat center/100% url('/html/msgtools/style/icon-lock.png'));`;
 
 lockButtoneditableStyle = lockButtonStyle + lockButtoneditableStyle;
 lockButtonlockedStyle = lockButtonStyle + lockButtonlockedStyle;
@@ -84,7 +87,7 @@ class MsgSelector extends HTMLElement {
         this.parentDiv.style = 'display: flex; flex-flow: column; height: 100%;';
 
         this.headerRow = createChildElement(this.parentDiv, 'div');
-        this.headerRow.style = 'flex: 0 1 auto;';
+        this.headerRow.style = 'display: flex; width: auto; align-items: center;';
 
         this.lockButton = createChildElement(this.headerRow, 'button');
         this.lockButton.classList = this.editable ? 'editable' : 'locked';
@@ -92,7 +95,7 @@ class MsgSelector extends HTMLElement {
         this.lockButton.onclick = this.lockClicked.bind(this);
 
         this.msgLabel = createChildElement(this.headerRow, 'span');
-        this.msgLabel.setAttribute('style', headerStyle);
+        this.msgLabel.setAttribute('style', headerStyle + spanStyle);
         this.msgLabel.style.display = "none";
         this.msgLabel.style.display = labelDisplay;
 
