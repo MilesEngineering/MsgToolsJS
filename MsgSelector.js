@@ -24,10 +24,24 @@ function createChildElement(parent, childName) {
 }
 
 let headerStyle = `font-size: var(--base-font-size, 18px);
-                     margin: var(--input-margin, 0 15px 15px 0);
-                     border-color: var(--color-text, black);
-                     height: var(--input-height, 35px);
-                    `;
+                   margin: var(--input-margin, 0 15px 15px 0);
+                   border-color: var(--color-text, black);
+                   height: var(--input-height, 35px);
+                  `;
+
+
+let lockButtonStyle = `width: 15px;
+                       height: 15px;
+                       margin-right: 15px;
+                       padding: 1px;
+                      `;
+let lockButtoneditableStyle = `background: var(--editable-lock-btn-background, no-repeat center/100% url('/html/msgtools/style/icon-unlock.png'));
+                              `;
+let lockButtonlockedStyle = `background: var(--locked-lock-btn-background, no-repeat center/100% url('/html/msgtools/style/icon-lock.png'));
+                            `;
+
+lockButtoneditableStyle = lockButtonStyle + lockButtoneditableStyle;
+lockButtonlockedStyle = lockButtonStyle + lockButtonlockedStyle;
 
 class MsgSelector extends HTMLElement {
     constructor(handler, selection, settings, filter) {
@@ -68,21 +82,25 @@ class MsgSelector extends HTMLElement {
         this.shadow = this.attachShadow({mode: 'open'});
         this.parentDiv = createChildElement(this.shadow, 'div');
         this.parentDiv.style = 'display: flex; flex-flow: column; height: 100%;';
+
         this.headerRow = createChildElement(this.parentDiv, 'div');
         this.headerRow.style = 'flex: 0 1 auto;';
+
         this.lockButton = createChildElement(this.headerRow, 'button');
-        this.lockButton.textContent = this.editable ? 'X' : 'O';
-        this.lockButton.style = 'border-radius: 50%';
+        this.lockButton.classList = this.editable ? 'editable' : 'locked';
+        this.lockButton.style = this.editable ? lockButtoneditableStyle : lockButtonlockedStyle;
         this.lockButton.onclick = this.lockClicked.bind(this);
+
         this.msgLabel = createChildElement(this.headerRow, 'span');
         this.msgLabel.setAttribute('style', headerStyle);
         this.msgLabel.style.display = "none";
         this.msgLabel.style.display = labelDisplay;
+
         this.msgLabelEditBox = createChildElement(this.headerRow, 'input');
         this.msgLabelEditBox.setAttribute('style', headerStyle);
         this.msgLabelEditBox.onchange = this.msgLabelChanged.bind(this);
         this.msgLabelEditBox.style.display = controlDisplay;
-        
+
         // list of dropdowns to navigate message hierarchy
         this.dropdowns = [];
         this.handlerObj = undefined;
@@ -92,7 +110,7 @@ class MsgSelector extends HTMLElement {
     init() {
         // Create the top-level drop down list, and specify it's not user activated.
         this.createDropDownList(0, msgtools.msgs, false);
-        
+
         // If there's a selection, use it.
         if(this.selection != undefined && this.selection != "") {
             const initialSelections = this.selection.split('.');
@@ -104,19 +122,19 @@ class MsgSelector extends HTMLElement {
         } else {
             // disable blanking the first choice...
             //this.dropdowns[0].value = '';
-            
+
             // kickoff the first choice as if it were user activated.
             // that will end up causing the first choice of each dropdown
             // to be selected.
             this.itemSelectionChanged(0, true);
         }
     }
-    
+
     destroy() {
         msgtools.DelayedInit.remove(this);
         this.destroyHandler();
     }
-    
+
     destroyHandler() {
         if(this.handlerObj) {
             this.handlerObj.destroy();
@@ -191,7 +209,7 @@ class MsgSelector extends HTMLElement {
     createHandlerObj(msgclass, user_activated) {
         // destroy the old handler
         this.destroyHandler();
-        
+
         // set up labels, with either existing setting, or default value.
         if(user_activated || !('msgLabel' in this.settings)) {
             this.msgLabelEditBox.value = msgclass.prototype.MSG_NAME;
@@ -218,7 +236,7 @@ class MsgSelector extends HTMLElement {
             }
         }
     }
-    
+
     settingsChanged() {
         var settings = this.currentSettings();
         // used to dispatch an event that includes the user's current choice
@@ -237,7 +255,7 @@ class MsgSelector extends HTMLElement {
         }
         return settings;
     }
-    
+
     resize(width, height) {
         if(this.handlerObj != undefined) {
             // for some reason i can't seem to compute an offset that works exactly right,
@@ -260,17 +278,19 @@ class MsgSelector extends HTMLElement {
         if(this.handlerObj != undefined) {
             this.handlerObj.setEditable(editable);
         }
-        this.lockButton.textContent = editable ? 'X' : 'O';
+        this.lockButton.classList = editable ? 'editable' : 'locked';
+        this.lockButton.style = editable ? lockButtoneditableStyle : lockButtonlockedStyle;
+
     }
-    
+
     lockClicked() {
-        if(this.lockButton.textContent == 'X') {
+        if(this.lockButton.classList == 'editable') {
             this.setEditable(false);
         } else {
             this.setEditable(true);
         }
     }
-    
+
     msgLabelChanged() {
         this.msgLabel.textContent = this.msgLabelEditBox.value;
         this.settingsChanged();
