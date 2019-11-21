@@ -31,8 +31,8 @@ class SettingsGui extends HTMLElement {
 
         // delete button
         this.deleteButton = document.createElement('button');
-        this.deleteButton.classList = 'btn btn-delete btn-warning';
-        this.deleteButton.textContent = 'Delete config';
+        this.deleteButton.classList = 'btn btn-delete btn-danger';
+        this.deleteButton.textContent = 'Delete';
         this.deleteButton.onclick = this.deleteSettings.bind(this);
 
         this.currentConfigHeader = document.createElement('span');
@@ -49,7 +49,10 @@ class SettingsGui extends HTMLElement {
         var event = new CustomEvent('delete', {
             detail: this.settingsName
         });
-        this.dispatchEvent(event);
+
+        if(confirm('Are you sure you want to delete this configuration?')){
+            this.dispatchEvent(event);
+        }
     }
     newSettings() {
         var event = new CustomEvent('save', {
