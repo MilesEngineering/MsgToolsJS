@@ -261,6 +261,8 @@ class MsgSelector extends HTMLElement {
 
     resize(width, height) {
         if(this.handlerObj != undefined) {
+            //TODO Make this less hacky. It's in here to force the child of
+            //Golden layout to take up less space than its parent component
             // for some reason i can't seem to compute an offset that works exactly right,
             // i need to do *2 to seem to come close.
             let top = this.headerRow.scrollHeight+this.parentDiv.offsetTop*2;

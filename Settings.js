@@ -7,7 +7,7 @@ class SettingsGui extends HTMLElement {
 
         // save button
         this.saveButton = document.createElement('button');
-        this.saveButton.classList = 'btn btn-save btn-primary';
+        this.saveButton.classList = 'btn btn-save';
         this.saveButton.textContent = 'Save';
         this.saveButton.onclick = this.saveSettings.bind(this);
 
@@ -16,7 +16,7 @@ class SettingsGui extends HTMLElement {
 
         // add a way to pick a filename from a list of filenames
         this.chooseSettingsDropdown = document.createElement('select');
-        this.chooseSettingsDropdown.classList = 'config-select';
+        this.chooseSettingsDropdown.classList = 'Open';
         this.chooseSettingsDropdown.onchange = this.chooseSettings.bind(this);
         this.processSettingsChoices(defaultFileChoice);
 
@@ -25,13 +25,13 @@ class SettingsGui extends HTMLElement {
         this.newFilename.classList = 'input-save-as';
 
         this.saveAsButton = document.createElement('button');
-        this.saveAsButton.textContent = 'Save new config';
-        this.saveAsButton.classList = 'btn btn-save-as btn-primary';
+        this.saveAsButton.textContent = 'Save';
+        this.saveAsButton.classList = 'btn btn-save-as';
         this.saveAsButton.onclick = this.newSettings.bind(this);
 
         // delete button
         this.deleteButton = document.createElement('button');
-        this.deleteButton.classList = 'btn btn-delete btn-danger';
+        this.deleteButton.classList = 'btn btn-delete';
         this.deleteButton.textContent = 'Delete';
         this.deleteButton.onclick = this.deleteSettings.bind(this);
 
