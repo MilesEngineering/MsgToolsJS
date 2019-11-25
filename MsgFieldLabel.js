@@ -15,6 +15,7 @@ function createChildElement(parent, childName) {
 class MsgElement extends HTMLElement {
     constructor(msgName = undefined, settings = undefined, showMsgName = undefined, showHeader = undefined, editable = false) {
         super();
+        this.classList = 'msgtools-component';
         this.msgName = (msgName != undefined) ? msgName : this.getAttribute('msgName');
         this.settings = settings;
         if(showHeader != undefined) {
@@ -256,7 +257,7 @@ class MsgRxRow extends MsgRx {
                 headerCell.textContent = this.fieldNames[i];
                 td.associatedWidget = headerCell;
             }
-            
+
             var checkbox_td = createChildElement(this.checkboxRow, 'td');
             var checkbox = createChildElement(checkbox_td, 'input');
             checkbox.setAttribute('type', 'checkbox');
@@ -447,7 +448,7 @@ class MsgTxRow extends MsgTx {
                 headerCell.textContent = this.fieldNames[i];
                 editWidget.associatedWidget = headerCell;
             }
-            
+
             var checkbox_td = createChildElement(this.checkboxRow, 'td');
             var checkbox = createChildElement(checkbox_td, 'input');
             checkbox.setAttribute('type', 'checkbox');
@@ -499,7 +500,7 @@ class MsgTxColumn extends MsgTx {
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
             td.appendChild(editWidget);
-            
+
             var checkbox_td = createChildElement(tr, 'td');
             var checkbox = createChildElement(checkbox_td, 'input');
             checkbox.setAttribute('type', 'checkbox');

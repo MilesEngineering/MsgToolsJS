@@ -49,6 +49,7 @@ lockButtonlockedStyle = lockButtonStyle + lockButtonlockedStyle;
 class MsgSelector extends HTMLElement {
     constructor(handler, selection, settings, filter) {
         super();
+        this.classList = 'msgtools-component';
         if (handler !== undefined) {
             this.handler = stringToClass(handler);
         } else {
@@ -75,7 +76,8 @@ class MsgSelector extends HTMLElement {
             this.filter = this.hasAttribute('filter') ? this.getAttribute('filter') : '';
         }
 
-        let msgSelectorStyle = "display: var(--msg-selector-display, block);";
+        let msgSelectorStyle = `color:var(--color);
+                                display: var(--msg-selector-display, block);`;
 
         this.setAttribute('style', msgSelectorStyle);
 

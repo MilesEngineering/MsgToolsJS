@@ -33,6 +33,7 @@ class SettingsGui extends HTMLElement {
         this.deleteButton = document.createElement('button');
         this.deleteButton.classList = 'btn btn-delete';
         this.deleteButton.textContent = 'Delete';
+        this.deleteButton.disabled = false;
         this.deleteButton.onclick = this.deleteSettings.bind(this);
 
         this.currentConfigHeader = document.createElement('span');
