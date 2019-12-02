@@ -23,6 +23,7 @@ function createChildElement(parent, childName) {
     return child;
 }
 
+
 let headerStyle = `font-size: var(--base-font-size, 18px);
                    margin: var(--input-margin, 0 15px 0 0);
                    border-color: var(--color-text, black);
@@ -36,7 +37,7 @@ let lockButtonStyle = `width: 18px;
                        margin-right: 15px;
                        padding: 1px;
                        border: none;
-
+                       flex: 0 0 18px;
                       `;
 let lockButtoneditableStyle = `background: var(--editable-lock-btn-background,
                                no-repeat center/100% url('/html/msgtools/style/icon-unlock.png'));`;
