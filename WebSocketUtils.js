@@ -1,6 +1,6 @@
 'use strict';
-//To-Do remove WebSocketUtils from global namespace 
-//`connect-name` acts as a unique id to access MsgSocket 
+//To-Do remove WebSocketUtils from global namespace
+//`connect-name` acts as a unique id to access MsgSocket
 //Pre-Requisites check of msgtools
 //
 var WebSocketUtils = {};
@@ -22,7 +22,7 @@ var WebSocketUtils = {};
                 display: block;
                 contain: content;
                 text-align: center;
-                background: linear-gradient(to left, var(--bg-color, white), transparent);                
+                background: linear-gradient(to left, var(--bg-color, white), transparent);
             }
             input[type="button"]{
 
@@ -38,11 +38,11 @@ var WebSocketUtils = {};
                 margin-bottom: var(--btn-margin-bottom, 5px);
                 margin-right: var(--btn-margin-right, 0px);
                 width: var(--btn-width, auto);
-                height: var(--btn-height, auto);     
+                height: var(--btn-height, auto);
                 font-family: var(--btn-font-family, "Helvetica Neue", Helvetica, Arial, sans-serif);
                 font-size: var(--btn-font-size, small);
                 font-color: var(--btn-font-color, grey);
-          
+
 
             }
             input[type="text"]{
@@ -100,8 +100,8 @@ var WebSocketUtils = {};
             this.ws.setAttribute('placeholder', 'Address');
             this.ws.setAttribute('onfocus', '');
 
-            //Address By User - default '127.0.0.1'            
-            var params = msgtools.getWebsocketURLParams(window) //msgtools.js 
+            //Address By User - default '127.0.0.1'
+            var params = msgtools.getWebsocketURLParams(window) //msgtools.js
             if (params.websocketServer === null || params.websocketServer === '') {
                 var address = this.getAttribute('socket-address');
                 if (address !== '' && address !== null) {
@@ -147,7 +147,7 @@ var WebSocketUtils = {};
             this.display_name.innerHTML = name;
             this.shadow.insertBefore(this.display_name, this.ws);
 
-            //Used for exposing each instance of msgSocket externally 
+            //Used for exposing each instance of msgSocket externally
             WebSocketUtils[name] = {}
 
             this.connect_ele = document.createElement('input');
@@ -217,7 +217,7 @@ var WebSocketUtils = {};
             var webSocketConnection = this;
 
             console.log('[setupClient] Acquire msgClient from global ', WebSocketUtils[this.name].msgClient);
-            client = WebSocketUtils[this.name].msgClient; //To-Do access the object instead of global 
+            client = WebSocketUtils[this.name].msgClient; //To-Do access the object instead of global
             this.webSocketStatus("Connecting", 'gold');
 
             client.addEventListener('connected', function(response) {
@@ -310,7 +310,7 @@ var WebSocketUtils = {};
                 display: block;
                 contain: content;
                 text-align: center;
-                background: linear-gradient(to left, var(--bg-color, white), transparent);                
+                background: linear-gradient(to left, var(--bg-color, white), transparent);
             }
             input[type="button"]{
 
@@ -326,7 +326,7 @@ var WebSocketUtils = {};
                 margin-bottom: var(--btn-margin-bottom, 5px);
                 margin-right: var(--btn-margin-right, 0px);
                 width: var(--btn-width, auto);
-                height: var(--btn-height, auto);     
+                height: var(--btn-height, auto);
                 font-family: var(--btn-font-family, "Helvetica Neue", Helvetica, Arial, sans-serif);
                 font-size: var(--btn-font-size, small);
                 font-color: var(--btn-font-color, grey);
@@ -358,7 +358,7 @@ var WebSocketUtils = {};
         connectedCallback() {
 
             var event_id = 1;
-            //Name of Messaging Client 
+            //Name of Messaging Client
             var name = this.getAttribute('connect-name');
             if (name !== '' && name !== null) {
                 this.name = name;
@@ -448,8 +448,8 @@ var WebSocketUtils = {};
         }
 
         setupLogging(client) {
-            //To-Do access the object instead of global 
-            //Not effective client object 
+            //To-Do access the object instead of global
+            //Not effective client object
             var webSocketLog = this;
             console.log('[setupLogging] Acquire msgClient from global ', WebSocketUtils[this.name].msgClient);
             client = WebSocketUtils[this.name].msgClient;
