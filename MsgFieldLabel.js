@@ -89,13 +89,12 @@ class MsgElement extends HTMLElement {
             for(var i=0; i<fieldNames.length; i++) {
                 let fieldName = fieldNames[i];
                 let fieldSettings = this.settings.fieldsDisplayed[fieldName];
-                let displayed = fieldSettings.displayed;
-                this.enableField(fieldName, displayed);
+                this.enableField(fieldName, fieldSettings.displayed, fieldSettings.value);
             }
         }
         this.setEditable(this.editable);
     }
-    enableField(fieldName, enable) {
+    enableField(fieldName, enable, value) {
         if(this.fieldNames != undefined) {
             for(var i=0; i<this.fieldNames.length; i++) {
                 if(fieldName == this.fieldNames[i]) {
@@ -112,7 +111,11 @@ class MsgElement extends HTMLElement {
             settings.fieldsDisplayed = {};
             for(var i=0; i<this.fieldNames.length; i++) {
                 let fieldName = this.fieldNames[i];
-                settings.fieldsDisplayed[fieldName] = {displayed : this.fields[i].checkbox.checked};
+                var fieldSettings = {displayed : this.fields[i].checkbox.checked};
+                if (this.fields[i].value != undefined) {
+                    fieldSettings.value = this.fields[i].value;
+                }
+                settings.fieldsDisplayed[fieldName] = fieldSettings;
             }
         }
         return settings;
@@ -433,6 +436,17 @@ class MsgTx extends MsgElement {
             }
         }
     }
+    enableField(fieldName, enable, value) {
+        if(this.fieldNames != undefined) {
+            for(var i=0; i<this.fieldNames.length; i++) {
+                if(fieldName == this.fieldNames[i]) {
+                    this.fields[i].checkbox.checked = enable;
+                    this.fields[i].value = value;
+                    return;
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -466,6 +480,7 @@ class MsgTxRow extends MsgTx {
             var fieldInfo = this.fieldInfos[i];
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
+            editWidget.addEventListener('change', this.settingsChanged.bind(this));
             td.appendChild(editWidget);
 
             if(this.showHeader) {
