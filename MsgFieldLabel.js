@@ -547,6 +547,7 @@ class MsgTxColumn extends MsgTx {
             }
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
+            editWidget.addEventListener('change', this.settingsChanged.bind(this));
             td.appendChild(editWidget);
 
             var checkbox_td = createChildElement(tr, 'td');
