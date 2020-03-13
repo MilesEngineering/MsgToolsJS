@@ -38,10 +38,15 @@ let lockButtonStyle = `width: 18px;
                        border: none;
 
                       `;
-let lockButtoneditableStyle = `background: var(--editable-lock-btn-background,
-                               no-repeat center/100% url('/html/msgtools/style/icon-unlock.png'));`;
-let lockButtonlockedStyle = `background: var(--locked-lock-btn-background,
-                             no-repeat center/100% url('/html/msgtools/style/icon-lock.png'));`;
+
+// get the name and full path of this script file
+var scripts= document.getElementsByTagName('script');
+var mysrc= scripts[scripts.length-1].src;
+// get just the path of this file
+var mydir = mysrc.substring(0, mysrc.lastIndexOf("/"));
+// default to lock/unlock icons in style dir relative to this source file
+let lockButtoneditableStyle = `background: var(--editable-lock-btn-background, no-repeat center/100% url(${mydir}/style/icon-unlock.png));`;
+let lockButtonlockedStyle = `background: var(--locked-lock-btn-background, no-repeat center/100% url(${mydir}/style/icon-lock.png));`;
 
 lockButtoneditableStyle = lockButtonStyle + lockButtoneditableStyle;
 lockButtonlockedStyle = lockButtonStyle + lockButtonlockedStyle;
