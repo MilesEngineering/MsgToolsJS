@@ -9,38 +9,51 @@ var svgns = "http://www.w3.org/2000/svg";
 class MsgBasePlot extends HTMLElement {
     constructor() {
         super();
-        
+
+        // used to set the colors for the plots
+        this.themeClass = document.querySelector('body').classList;
+        this.themeClass = Array.from(this.themeClass);
+        this.themeDark = false;
+        if(this.themeClass.includes('dark')){ this.themeDark = true ;}
+
+
         this.shadow = this.attachShadow({mode: 'open'});
 
         var style = document.createElement('style');
-        style.textContent = `
-svg {
-   font-family: monospace;
-}
 
-.axis {
-   stroke-width: 1;
-}
+        let baseColor = 'black';
+        if(this.themeDark){
+            baseColor = 'white';
+        }
 
-.axis .tick line {
-   stroke: black;
-}
+        style.textContent = `svg {
+                               font-family: monospace;
+                            }
 
-.axis .tick text {
-   fill: black;
-   font-size: 0.7em;
-}
+                            .axis {
+                               stroke-width: 1;
+                            }
 
-.axis .domain {
-   fill: none;
-   stroke: black;
-}
+                            .axis .tick line {
+                               stroke: var(--color-text, ${baseColor});
+                            }
 
-.group {
-   fill: none;
-   stroke: black;
-   stroke-width: 1.5;
-}`;
+                            .axis .tick text {
+                               fill: var(--color-text, ${baseColor});
+                               font-size: 0.7em;
+                            }
+
+                            .axis .domain {
+                               fill: none;
+                               stroke: var(--color-text, ${baseColor});
+                            }
+
+                            .group {
+                               fill: none;
+                               stroke: var(--color-text, ${baseColor});
+                               stroke-width: 1.5;
+                            }`;
+
         this.shadow.appendChild(style);
 
         if(this.hasAttribute('timeLimit')) {
@@ -91,7 +104,29 @@ svg {
 
     configureDataSets(labels)
     {
-        let colors = ['red','blue','green','orange','purple','hotpink','cyan','limegreen','magenta','darkred','darkblue','darkgreen','darkorange','darkpurple'];
+        console.log(this.themeDark);
+        let colors = [];
+        if( this.themeDark ){
+            // Dark theme needs light colors
+            colors = ['#f0b4e5', '#d4f0b4',  '#f086e9', '#e1ff5c', '#fc6886',
+                      '#68fc8f', '#f2acae', '#f2eaac', '#b5f0b4', '#68cbfc',
+                      '#f0b4b4', '#b4f0e7', '#f086af', '#f0b286', '#88aeeb',
+                      '#69f5ad', '#f56969', '#9af569', '#697ef5', '#86f0de',
+                      '#69f579', '#ec69f5', '#c9f086', '#acdbdf', '#69779b',
+                      '#c199c7', '#ead5ed', '#d4d420', '#20d492', '#745cff',
+                      '#ff6f5c', '#e1ff5c', '#ffbd66', '#fa66ff', '#66baff',
+                  ]
+        } else {
+            // Light theme needs dark colors
+            colors = [ '#0833a1', '#a13808', '#a10882', '#29a108', '#5c0404',
+                       '#753a32', '#669900', '#8a009c', '#487532', '#3c009c',
+                       '#353275', '#453614', '#32755e', '#507532', '#324d75',
+                       '#bf1da9', '#1dbf58', '#1d7ebf', '#4c8f54', '#de1bde',
+                       '#a10854', '#bf691d',  '#565c04','#045c33', '#bf281d',
+                       '#71bf1d', '#bf791d', '#6e3275', '#421445', '#756232',
+                       '#144536', '#420d38', '#1dbf22', '#1db4bf', '#084fa1',
+            ];
+        }
         var color=0;
         for (var i in labels) {
             var label = labels[i];

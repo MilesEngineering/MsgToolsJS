@@ -23,10 +23,20 @@ function createChildElement(parent, childName) {
     return child;
 }
 
+
 let headerStyle = `font-size: var(--base-font-size, 18px);
                    margin: var(--input-margin, 0 15px 0 0);
                    border-color: var(--color-text, black);
                    height: var(--input-height, 35px);
+                  `;
+
+let inputStyle =  `font-size: var(--base-font-size, 18px);
+                   margin: var(--input-margin, 0 15px 0 0);
+                   border-color: var(--color-text, black);
+                   height: var(--input-height, 35px);
+                   background: var(--input-background, white);
+                   color: var(--input-color, black);
+                   border-color: var(--input-border-color, black);
                   `;
 
 let spanStyle = `line-height: var(--input-height, 35px);`
@@ -36,7 +46,7 @@ let lockButtonStyle = `width: 18px;
                        margin-right: 15px;
                        padding: 1px;
                        border: none;
-
+                       flex: 0 0 18px;
                       `;
 
 // get the name and full path of this script file
@@ -107,7 +117,7 @@ class MsgSelector extends HTMLElement {
         this.msgLabel.style.display = labelDisplay;
 
         this.msgLabelEditBox = createChildElement(this.headerRow, 'input');
-        this.msgLabelEditBox.setAttribute('style', headerStyle);
+        this.msgLabelEditBox.setAttribute('style', inputStyle);
         this.msgLabelEditBox.onchange = this.msgLabelChanged.bind(this);
         this.msgLabelEditBox.style.display = controlDisplay;
 
@@ -153,10 +163,17 @@ class MsgSelector extends HTMLElement {
 
     createDropDownList(depth, msgtree, user_activated) {
 
-        let dropdownStyle = headerStyle + `
-                             min-width: var(--input-width, 100px);
-                             background: var(--background-color, white);
-                             `;
+         let dropdownStyle =  `font-size: var(--base-font-size, 18px);
+                            margin: var(--input-margin, 0 15px 0 0);
+                            border-color: var(--color-text, black);
+                            height: var(--input-height, 35px);
+                            background: var(--input-background, white);
+                            color: var(--input-color, black);
+                            border-color: var(--input-border-color, black);
+                           `;
+         let selectStyle = `font-size: var(--base-font-size, 18px);
+                            color: var(--input-color, black);
+                           `;
 
         let controlDisplay = (this.editable) ? "" : "none";
         let dropdown = createChildElement(this.headerRow, 'select');
@@ -175,6 +192,7 @@ class MsgSelector extends HTMLElement {
             let value=msgtree[name];
             if(value == undefined || value.prototype == undefined || this.filter == '' || name.startsWith(this.filter)) {
                 let option = createChildElement(dropdown, 'option');
+                option.setAttribute('style', selectStyle);
                 option.textContent = name;
             }
         }

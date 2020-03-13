@@ -74,6 +74,9 @@ class SettingsGui extends HTMLElement {
     }
     chooseSettings() {
         this.settingsName = this.chooseSettingsDropdown.value;
+        if(this.currentConfigHeader !== undefined) {
+            this.currentConfigHeader.textContent = this.settingsName;
+        }
         var event = new CustomEvent('load', {
             detail: this.settingsName
         });

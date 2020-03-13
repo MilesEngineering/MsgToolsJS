@@ -7,7 +7,7 @@ where the components are loaded.
 
 
 /* All overarching styles should be defined here */
-:root {
+.msgtools-component {
     /* colors */
     --color-dark:;
     --color-dark-contrast:;
@@ -27,15 +27,13 @@ where the components are loaded.
     --border:;
 
     --btn-radius:;
-  }
 
 /* Specific components */
- msgtools-tabs {
    --tab-color:;
    --tab-background-color:;
    --tab-button-border:;
    --tab-button-padding:;
-   --tab-button-padding-hover:; 
+   --tab-button-padding-hover:;
    --tab-button-transition:;
    --tab-background-hover:;
    --tab-padding:;
@@ -43,8 +41,4 @@ where the components are loaded.
    --tab-button-border-hover:;
    --wrapper-padding:;
    --wrapper-border:;
- }
-
- msgtools-msgselector {
-
  }

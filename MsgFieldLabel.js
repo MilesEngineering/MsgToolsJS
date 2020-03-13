@@ -89,13 +89,12 @@ class MsgElement extends HTMLElement {
             for(var i=0; i<fieldNames.length; i++) {
                 let fieldName = fieldNames[i];
                 let fieldSettings = this.settings.fieldsDisplayed[fieldName];
-                let displayed = fieldSettings.displayed;
-                this.enableField(fieldName, displayed);
+                this.enableField(fieldName, fieldSettings.displayed, fieldSettings.value);
             }
         }
         this.setEditable(this.editable);
     }
-    enableField(fieldName, enable) {
+    enableField(fieldName, enable, value) {
         if(this.fieldNames != undefined) {
             for(var i=0; i<this.fieldNames.length; i++) {
                 if(fieldName == this.fieldNames[i]) {
@@ -112,7 +111,11 @@ class MsgElement extends HTMLElement {
             settings.fieldsDisplayed = {};
             for(var i=0; i<this.fieldNames.length; i++) {
                 let fieldName = this.fieldNames[i];
-                settings.fieldsDisplayed[fieldName] = {displayed : this.fields[i].checkbox.checked};
+                var fieldSettings = {displayed : this.fields[i].checkbox.checked};
+                if (this.fields[i].value != undefined) {
+                    fieldSettings.value = this.fields[i].value;
+                }
+                settings.fieldsDisplayed[fieldName] = fieldSettings;
             }
         }
         return settings;
@@ -352,20 +355,36 @@ class MsgTx extends MsgElement {
         msgtools.client.sendMessage(msg);
     }
     editWidget(fieldInfo) {
+        let inputStyle =  `font-size: var(--base-font-size, 18px);
+                           margin: var(--input-margin, 0 15px 0 0);
+                           border-color: var(--color-text, black);
+                           height: var(--input-height, 35px);
+                           background: var(--input-background, white);
+                           color: var(--input-color, black);
+                           border-color: var(--input-border-color, black);
+                          `;
+        let selectStyle = `font-size: var(--base-font-size, 18px);
+                           color: var(--input-color, black);
+                          `;
+
         var w;
         if(fieldInfo.type === "enumeration") {
             // make a dropdown list for enums
             w = document.createElement('select');
+            w.setAttribute('style', inputStyle);
+
             let lookup = fieldInfo.enumLookup[0]; // forward lookup is #0
             for(var name in lookup) {
                 var value = lookup[name];
                 var option = createChildElement(w, 'option');
+                option.setAttribute('style', selectStyle);
                 option.setAttribute('value', value);
                 option.textContent = name;
             }
         } else {
             // make a text edit for anything else
             w = document.createElement('input');
+            w.setAttribute('style', inputStyle);
             w.setAttribute('type', 'text');
         }
         return w;
@@ -374,8 +393,9 @@ class MsgTx extends MsgElement {
         var sendBtn = document.createElement('input');
         var btnStyle = `background-color: var(--color-alert, white);
                         border-color: var(--color-alert, black);
-                        color: var(--button-color, black);
+                        color: var(--btn-color, black);
                         border-radius: var(--btn-radius, 2px);
+                        border-width: var(--btn-border-width, 1px);
                         font-size: var(--lg-font-size, 16px);
                         margin-top: var(--btn-margin-top, 2em);
                         padding: var(--btn-padding, 6px 12px);
@@ -416,6 +436,17 @@ class MsgTx extends MsgElement {
             }
         }
     }
+    enableField(fieldName, enable, value) {
+        if(this.fieldNames != undefined) {
+            for(var i=0; i<this.fieldNames.length; i++) {
+                if(fieldName == this.fieldNames[i]) {
+                    this.fields[i].checkbox.checked = enable;
+                    this.fields[i].value = value;
+                    return;
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -426,6 +457,14 @@ class MsgTxRow extends MsgTx {
         super(msgName, settings, showMsgName, showHeader, editable);
     }
     createFields() {
+        let checkboxStyle = `font-size: var(--base-font-size, 18px);
+                             margin: var(--checkbox-margin, 3px);
+                             border-color: var(--color-text, black);
+                             height: var(--checkbox-height, 35px);
+                             background: var(--input-background, white);
+                             color: var(--input-color, black);
+                             `;
+
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
             var td = createChildElement(tr, 'td');
@@ -441,6 +480,7 @@ class MsgTxRow extends MsgTx {
             var fieldInfo = this.fieldInfos[i];
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
+            editWidget.addEventListener('change', this.settingsChanged.bind(this));
             td.appendChild(editWidget);
 
             if(this.showHeader) {
@@ -451,6 +491,7 @@ class MsgTxRow extends MsgTx {
 
             var checkbox_td = createChildElement(this.checkboxRow, 'td');
             var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('style', checkboxStyle);
             checkbox.setAttribute('type', 'checkbox');
             checkbox.setAttribute('checked', 'checked');
             checkbox.onclick = this.settingsChanged.bind(this);
@@ -484,6 +525,13 @@ class MsgTxColumn extends MsgTx {
         super(msgName, settings, showMsgName, showHeader, editable);
     }
     createFields() {
+        let checkboxStyle = `font-size: var(--base-font-size, 18px);
+                             margin: var(--checkbox-margin, 3px);
+                             border-color: var(--color-text, black);
+                             height: var(--checkbox-height, 35px);
+                             background: var(--input-background, white);
+                             color: var(--input-color, black);
+                             `;
         if(this.showMsgName) {
             var tr = createChildElement(this.table, 'tr');
             var td = createChildElement(tr, 'td');
@@ -499,10 +547,12 @@ class MsgTxColumn extends MsgTx {
             }
             var td = createChildElement(tr, 'td');
             var editWidget = this.editWidget(fieldInfo);
+            editWidget.addEventListener('change', this.settingsChanged.bind(this));
             td.appendChild(editWidget);
 
             var checkbox_td = createChildElement(tr, 'td');
             var checkbox = createChildElement(checkbox_td, 'input');
+            checkbox.setAttribute('style', checkboxStyle);
             checkbox.setAttribute('type', 'checkbox');
             checkbox.setAttribute('checked', 'checked');
             checkbox.onclick = this.settingsChanged.bind(this);
