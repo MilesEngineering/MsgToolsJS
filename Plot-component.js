@@ -104,7 +104,7 @@ class MsgBasePlot extends HTMLElement {
 
     configureDataSets(labels)
     {
-        console.log(this.themeDark);
+        //console.log(this.themeDark);
         let colors = [];
         if( this.themeDark ){
             // Dark theme needs light colors
