@@ -42,6 +42,11 @@ if (typeof MsgPlot !== "undefined") {
             let labels = [];
             for(var i=0; i<this.msgClass.prototype.fields.length; i++) {
                 var fi = this.msgClass.prototype.fields[i];
+                //# skip string fields
+                if(fi.units == 'ASCII')
+                {
+                    continue;
+                }
                 this.fieldInfos.push(fi);
                 if(fi.count > 1){
                     // list of array elements to plot
@@ -151,7 +156,13 @@ if (typeof MsgPlot !== "undefined") {
                     newData.push(value);
                 }
             } else {
-                var value = msg[fieldInfo.get]();
+                var value;
+                if(fieldInfo.enumLookup == []) {
+                    value = msg[fieldInfo.get]();
+                } else {
+                    // for enums, plot the integer value
+                    value = msg[fieldInfo.get](/*enumAsInt=*/true);
+                }
                 newData.push(value);
             }
         }

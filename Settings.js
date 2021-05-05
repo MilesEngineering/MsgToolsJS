@@ -9,6 +9,7 @@ class SettingsGui extends HTMLElement {
         this.saveButton = document.createElement('button');
         this.saveButton.classList = 'btn btn-save';
         this.saveButton.textContent = 'Save';
+        this.saveButton.setAttribute('target', "menu_toggle");
         this.saveButton.onclick = this.saveSettings.bind(this);
 
         // callback to get list of file choices
