@@ -40,12 +40,8 @@ class SteinhartHartConversion {
 
     static Invert(temp_c, a, b, c, d, r0, v_ref, v_full, r1, r2, bit_depth) {
         let temp_k = temp_c + 273.15;
-        // TODO: Replace numpy with appropriate javascript code.
-        let roots = numpy.roots([d, c, b, a - (1.0 / temp_k)]);
-        if (numpy.iscomplex(roots[-1])) {
-            // TODO: conversion failed!
-            return temp_c;
-        }
+        const { allRoots } = FloPoly;
+        const roots = allRoots([d, c, b, a - (1.0 / temp_k)]);
         return ResistanceConversion.Invert(r0 * Math.exp(roots[-1]),
                                            v_ref, v_full, r1, r2, bit_depth);
     }
