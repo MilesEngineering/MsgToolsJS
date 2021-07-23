@@ -148,6 +148,14 @@ class MsgRx extends MsgElement {
         }
         // time of last reception
         this.rxTime = 0;
+
+        // used to set the colors for the plots
+        var themeClass = document.querySelector('body').classList;
+        themeClass = Array.from(themeClass);
+        this.themeDark = false;
+        if(themeClass.includes('dark')){
+            this.themeDark = true;
+        }
     }
     init() {
         super.init();
@@ -169,25 +177,43 @@ class MsgRx extends MsgElement {
     processMsg(msg) {
         for(var i=0; i<this.fieldInfos.length; i++) {
             var fieldInfo = this.fieldInfos[i];
-            var value = msg[fieldInfo.get]();
-            this.fields[i].textContent = value;
-            var color = 'black'; //TODO Doesn't work on black background!
-            if(fieldInfo.type === "enumeration") {
-                let int_value = msg[fieldInfo.get](true);
-                // if value was the same as int_value, then it didn't get decoded,
-                // which should count as a red value
-                if(int_value === value) {
+            var color = 'black';
+            if(this.themeDark){
+                color = 'white';
+            }
+            var value;
+            var str_value;
+            for(var elem_number=0; elem_number<fieldInfo.count; elem_number++) {
+                if(fieldInfo.count > 1){
+                    value = msg[fieldInfo.get](elem_number);
+                    if(elem_number == 0) {
+                        str_value = value;
+                    } else {
+                        str_value = str_value + ", " + value;
+                        console.log(str_value);
+                    }
+                } else {
+                    value = msg[fieldInfo.get]();
+                    str_value = value;
+                }
+                if(fieldInfo.type === "enumeration") {
+                    let int_value = msg[fieldInfo.get](true);
+                    // if value was the same as int_value, then it didn't get decoded,
+                    // which should count as a red value
+                    if(int_value === value) {
+                        color = 'red';
+                    }
+                    value = int_value;
+                }
+                if(value < fieldInfo.minVal || value > fieldInfo.maxVal) {
                     color = 'red';
                 }
-                value = int_value;
+                //TODO Need a way to check yellow limits
+                else if (value < fieldInfo.minVal || value > fieldInfo.maxVal) {
+                    color = 'yellow';
+                }
             }
-            if(value < fieldInfo.minVal || value > fieldInfo.maxVal) {
-                color = 'red';
-            }
-            //TODO Need a way to check yellow limits
-            else if (value < fieldInfo.minVal || value > fieldInfo.maxVal) {
-                color = 'yellow';
-            }
+            this.fields[i].textContent = str_value;
             this.fields[i].setAttribute('style', this.fields[i].baseStyle+'color: '+color);
         }
         if(this.maxAge>0) {
@@ -349,8 +375,16 @@ class MsgTx extends MsgElement {
         var msg = new this.msgClass();
         for(var i=0; i<this.fieldInfos.length; i++) {
             var fieldInfo = this.fieldInfos[i];
-            var value = this.fields[i].value;
-            msg[fieldInfo.set](value);
+            if(fieldInfo.count > 1){
+                var values = this.fields[i].value.split(",");
+                for(var elem_number=0; elem_number<fieldInfo.count; elem_number++) {
+                    var value = values[elem_number];
+                    msg[fieldInfo.set](value, elem_number);
+                }
+            } else {
+                var value = this.fields[i].value;
+                msg[fieldInfo.set](value);
+            }
         }
         msgtools.client.sendMessage(msg);
     }
