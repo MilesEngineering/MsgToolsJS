@@ -17,7 +17,7 @@ class MsgElement extends HTMLElement {
         super();
         this.classList = 'msgtools-component';
         this.msgName = (msgName != undefined) ? msgName : this.getAttribute('msgName');
-        this.settings = settings;
+        this.settings = (settings != undefined) ? settings : {};
         if(showHeader != undefined) {
             this.showHeader = showHeader;
         } else {
