@@ -63,6 +63,7 @@ if (typeof MsgPlot !== "undefined") {
             // If field names aren't defined, we should plot every field, and use the field names
             // as labels in the plot legend
             this.configureDataSets(labels);
+            // resize after configuring labels, or they don't show up on the legend
             this.resize();
         } else {
             // Make lists of field info and labels for plots based on field names.
@@ -122,6 +123,8 @@ if (typeof MsgPlot !== "undefined") {
             // specifically instead of using field names as labels.
             if(!this.hasAttribute('labels')) {
                 this.configureDataSets(labels);
+                // resize after configuring labels, or they don't show up on the legend
+                this.resize();
             }
         }
 
